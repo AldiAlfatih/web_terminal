@@ -112,39 +112,111 @@ export default function PassengerTrackingMap({ jadwal }: TrackingMapPageProps) {
         };
     }, [jadwal.id_jadwal]);
 
-    // Create custom DAMRI Yellow Pill marker icon for Leaflet
+    // Create custom DAMRI Bus Vector Graphic Marker icon for Leaflet
     const createDamriMarkerIcon = () => {
         if (!LeafletComponents?.L) return null;
 
         const L = LeafletComponents.L;
+        const rotateDeg = busLocation.heading ? Math.round(busLocation.heading) : 0;
+
+        // Custom detailed DAMRI Bus Vector Illustration SVG (No browser emoji!)
+        const busSvgGraphic = `
+            <svg width="44" height="44" viewBox="0 0 64 64" fill="none" xmlns="http://www.w3.org/2000/svg">
+                <!-- Bus Body Background Shield -->
+                <rect x="8" y="10" width="48" height="44" rx="10" fill="#FFC627" stroke="#003B70" stroke-width="3"/>
+                <!-- Front Windshield -->
+                <rect x="13" y="15" width="38" height="18" rx="4" fill="#003B70"/>
+                <!-- Destination Display Strip -->
+                <rect x="18" y="12" width="28" height="3" rx="1.5" fill="#FFC627"/>
+                <!-- Driver & Passenger Window Glass Glow -->
+                <rect x="16" y="17" width="15" height="14" rx="2" fill="#4A90E2" opacity="0.6"/>
+                <rect x="33" y="17" width="15" height="14" rx="2" fill="#4A90E2" opacity="0.6"/>
+                <!-- Headlights -->
+                <circle cx="16" cy="42" r="4.5" fill="#FFFFFF" stroke="#003B70" stroke-width="2"/>
+                <circle cx="48" cy="42" r="4.5" fill="#FFFFFF" stroke="#003B70" stroke-width="2"/>
+                <circle cx="16" cy="42" r="2" fill="#FFC627"/>
+                <circle cx="48" cy="42" r="2" fill="#FFC627"/>
+                <!-- Front Grille -->
+                <rect x="24" y="40" width="16" height="5" rx="2.5" fill="#003B70"/>
+                <!-- Bumper -->
+                <rect x="10" y="48" width="44" height="4" rx="2" fill="#001A33"/>
+                <!-- Side Mirrors -->
+                <rect x="3" y="20" width="4" height="8" rx="2" fill="#003B70"/>
+                <rect x="57" y="20" width="4" height="8" rx="2" fill="#003B70"/>
+            </svg>
+        `;
 
         const htmlIcon = `
             <div style="
-                background-color: #FFC627;
-                color: #001A33;
-                border: 2px solid #003B70;
-                border-radius: 9999px;
-                padding: 4px 10px;
-                font-family: 'JetBrains Mono', monospace;
-                font-weight: 800;
-                font-size: 11px;
                 display: flex;
+                flex-direction: column;
                 align-items: center;
-                gap: 5px;
-                box-shadow: 0 4px 14px rgba(0, 59, 112, 0.35);
-                white-space: nowrap;
-                transform: translate(-50%, -50%);
+                transform: translate(-50%, -100%);
+                cursor: pointer;
             ">
-                <span style="display:inline-block; width:8px; height:8px; background-color:#003B70; border-radius:9999px; animation: pulse 1.5s infinite;"></span>
-                <span>🚌 ${jadwal.bus?.nomor_polisi || 'DAMRI'}</span>
+                <!-- Outer Animated Pulse Ring -->
+                <div style="
+                    position: relative;
+                    width: 58px;
+                    height: 58px;
+                    display: flex;
+                    align-items: center;
+                    justify-content: center;
+                ">
+                    <!-- Beacon Radar Pulse -->
+                    <div style="
+                        position: absolute;
+                        inset: -4px;
+                        border-radius: 9999px;
+                        background-color: rgba(255, 198, 39, 0.45);
+                        border: 2px solid #FFC627;
+                        animation: ping 1.8s cubic-bezier(0, 0, 0.2, 1) infinite;
+                    "></div>
+
+                    <!-- Bus Graphic Pin Badge -->
+                    <div style="
+                        position: relative;
+                        width: 54px;
+                        height: 54px;
+                        border-radius: 9999px;
+                        background-color: #003B70;
+                        border: 3px solid #FFC627;
+                        display: flex;
+                        align-items: center;
+                        justify-content: center;
+                        box-shadow: 0 8px 20px rgba(0, 26, 51, 0.5);
+                        transform: rotate(${rotateDeg}deg);
+                        transition: transform 0.4s ease;
+                    ">
+                        ${busSvgGraphic}
+                    </div>
+                </div>
+
+                <!-- License Plate Tag below the Bus Graphic -->
+                <div style="
+                    margin-top: 4px;
+                    background-color: #001A33;
+                    color: #FFC627;
+                    border: 1px solid #FFC627;
+                    border-radius: 9999px;
+                    padding: 3px 10px;
+                    font-family: 'JetBrains Mono', monospace;
+                    font-weight: 800;
+                    font-size: 10px;
+                    letter-spacing: 0.05em;
+                    box-shadow: 0 3px 10px rgba(0, 0, 0, 0.4);
+                    white-space: nowrap;
+                ">
+                    ${jadwal.bus?.nomor_polisi || 'BUS DAMRI'}
+                </div>
             </div>
         `;
 
         return L.divIcon({
             html: htmlIcon,
-            className: 'damri-custom-marker',
-            iconSize: [120, 30],
-            iconAnchor: [60, 15],
+            className: 'damri-bus-graphic-marker',
+            iconSize: [60, 90],
+            iconAnchor: [30, 85],
         });
     };
 
