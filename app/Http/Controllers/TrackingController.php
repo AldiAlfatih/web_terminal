@@ -12,6 +12,22 @@ use Inertia\Response;
 class TrackingController extends Controller
 {
     /**
+     * Display the mobile web schedule selection portal for Supir (Driver).
+     */
+    public function supirIndex(): Response
+    {
+        $today = now()->toDateString();
+        $jadwals = Jadwal::with(['bus.poBus', 'rute'])
+            ->whereDate('tanggal', $today)
+            ->orderBy('jam_keberangkatan')
+            ->get();
+
+        return Inertia::render('supir/index', [
+            'jadwals' => $jadwals,
+        ]);
+    }
+
+    /**
      * Display the mobile web tracking page for Supir (Driver).
      */
     public function showDriverTracking(int $id_jadwal): Response

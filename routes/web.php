@@ -30,6 +30,7 @@ Route::get('/track/{id_jadwal}', [PublicController::class, 'trackMap'])->name('p
 | Supir (Driver) & Tracking Routes
 |--------------------------------------------------------------------------
 */
+Route::get('/supir', [TrackingController::class, 'supirIndex'])->name('supir.index');
 Route::get('/supir/jadwal/{id_jadwal}/track', [TrackingController::class, 'showDriverTracking'])->name('supir.tracking');
 Route::post('/api/jadwal/{id_jadwal}/location', [TrackingController::class, 'updateLocation'])->name('api.jadwal.location');
 Route::post('/api/jadwal/{id_jadwal}/finish', [TrackingController::class, 'finishJourney'])->name('api.jadwal.finish');
