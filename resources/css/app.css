@@ -1,0 +1,286 @@
+@import 'tailwindcss';
+
+@plugin 'tailwindcss-animate';
+
+@source '../../vendor/laravel/framework/src/Illuminate/Pagination/resources/views/*.blade.php';
+
+@custom-variant dark (&:is(.dark *));
+
+@theme {
+    --font-sans:
+        'Instrument Sans', ui-sans-serif, system-ui, sans-serif, 'Apple Color Emoji', 'Segoe UI Emoji', 'Segoe UI Symbol', 'Noto Color Emoji';
+
+    --radius-lg: var(--radius);
+    --radius-md: calc(var(--radius) - 2px);
+    --radius-sm: calc(var(--radius) - 4px);
+
+    --color-background: var(--background);
+    --color-foreground: var(--foreground);
+
+    --color-card: var(--card);
+    --color-card-foreground: var(--card-foreground);
+
+    --color-popover: var(--popover);
+    --color-popover-foreground: var(--popover-foreground);
+
+    --color-primary: var(--primary);
+    --color-primary-foreground: var(--primary-foreground);
+
+    --color-secondary: var(--secondary);
+    --color-secondary-foreground: var(--secondary-foreground);
+
+    --color-muted: var(--muted);
+    --color-muted-foreground: var(--muted-foreground);
+
+    --color-accent: var(--accent);
+    --color-accent-foreground: var(--accent-foreground);
+
+    --color-destructive: var(--destructive);
+    --color-destructive-foreground: var(--destructive-foreground);
+
+    --color-border: var(--border);
+    --color-input: var(--input);
+    --color-ring: var(--ring);
+
+    --color-chart-1: var(--chart-1);
+    --color-chart-2: var(--chart-2);
+    --color-chart-3: var(--chart-3);
+    --color-chart-4: var(--chart-4);
+    --color-chart-5: var(--chart-5);
+
+    --color-sidebar: var(--sidebar-background);
+    --color-sidebar-foreground: var(--sidebar-foreground);
+    --color-sidebar-primary: var(--sidebar-primary);
+    --color-sidebar-primary-foreground: var(--sidebar-primary-foreground);
+    --color-sidebar-accent: var(--sidebar-accent);
+    --color-sidebar-accent-foreground: var(--sidebar-accent-foreground);
+    --color-sidebar-border: var(--sidebar-border);
+    --color-sidebar-ring: var(--sidebar-ring);
+
+    /* ─── DAMRI x Art Zine Design Tokens ─── */
+    --color-damri-primary: var(--damri-primary);
+    --color-damri-canvas: var(--damri-canvas);
+    --color-damri-navy: var(--damri-navy);
+    --color-damri-card: var(--damri-card);
+    --color-damri-ink: var(--damri-ink);
+
+    /* Typography */
+    --font-display: 'Bricolage Grotesque', ui-sans-serif, system-ui, sans-serif;
+    --font-ui: 'Inter', ui-sans-serif, system-ui, sans-serif;
+    --font-mono: 'JetBrains Mono', ui-monospace, 'Cascadia Code', 'Source Code Pro', monospace;
+}
+
+/*
+  The default border color has changed to `currentColor` in Tailwind CSS v4,
+  so we've added these compatibility styles to make sure everything still
+  looks the same as it did with Tailwind CSS v3.
+*/
+@layer base {
+    *,
+    ::after,
+    ::before,
+    ::backdrop,
+    ::file-selector-button {
+        border-color: var(--color-gray-200, currentColor);
+    }
+}
+
+/* ─── Google Fonts Import ─── */
+@import url('https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,400;12..96,600;12..96,700;12..96,800&family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500;700&display=swap');
+
+:root {
+    /* ─── DAMRI x Art Zine Core Tokens ─── */
+    --damri-primary: #FFC627;      /* DAMRI Yellow — CTA ONLY, max 1 prominent use per viewport */
+    --damri-canvas: #f9f7f3;       /* Warm Cream — default page background, NEVER pure white */
+    --damri-navy: #003B70;         /* DAMRI Navy — hero bands, feature cards, footer */
+    --damri-card: #ffffff;         /* Pure White — ONLY for content cards on cream canvas */
+    --damri-ink: #001A33;          /* Deep Navy/Ink — default body & heading text */
+
+    /* ─── Override Shadcn/Radix defaults to DAMRI palette ─── */
+    --background: #f9f7f3;         /* Canvas instead of white */
+    --foreground: #001A33;         /* Ink */
+    --card: #ffffff;
+    --card-foreground: #001A33;
+    --popover: #ffffff;
+    --popover-foreground: #001A33;
+    --primary: #003B70;            /* Navy as primary brand */
+    --primary-foreground: #ffffff;
+    --secondary: #f0ede6;          /* Slightly darker cream for subtle contrast */
+    --secondary-foreground: #001A33;
+    --muted: #e8e4dc;
+    --muted-foreground: #4a5568;
+    --accent: #FFC627;             /* Yellow accent */
+    --accent-foreground: #001A33;
+    --destructive: hsl(0, 84.2%, 60.2%);
+    --destructive-foreground: hsl(0, 0%, 98%);
+    --border: #d4cfc6;             /* Hairline border — warm gray */
+    --input: #ebe8e1;
+    --ring: #003B70;
+
+    /* Chart colors using DAMRI palette */
+    --chart-1: #FFC627;
+    --chart-2: #003B70;
+    --chart-3: #001A33;
+    --chart-4: #f0ede6;
+    --chart-5: #4a7cb5;
+
+    /* Radius — design.md: rounded cards 10-16px, pills for interactive elements */
+    --radius: 0.75rem;             /* 12px base */
+
+    /* Sidebar styled as DAMRI Navy panel */
+    --sidebar-background: #003B70;
+    --sidebar-foreground: #ffffff;
+    --sidebar-primary: #FFC627;
+    --sidebar-primary-foreground: #001A33;
+    --sidebar-accent: rgba(255,255,255,0.1);
+    --sidebar-accent-foreground: #ffffff;
+    --sidebar-border: rgba(255,255,255,0.15);
+    --sidebar-ring: #FFC627;
+}
+
+
+/* No dark mode override — DAMRI system is light-only by design */
+
+/* ─── Base Layer ─── */
+@layer base {
+    * {
+        @apply border-border;
+    }
+
+    body {
+        background-color: var(--damri-canvas);
+        color: var(--damri-ink);
+        font-family: var(--font-ui);
+        -webkit-font-smoothing: antialiased;
+        -moz-osx-font-smoothing: grayscale;
+    }
+
+    h1, h2, h3, h4, h5, h6 {
+        font-family: var(--font-display);
+        color: var(--damri-ink);
+        letter-spacing: -0.02em;
+    }
+}
+
+/* ─── DAMRI Utility Classes ─── */
+@layer utilities {
+    /* Primary CTA button — DAMRI Yellow, pill shaped */
+    .btn-damri-primary {
+        background-color: var(--damri-primary);
+        color: var(--damri-ink);
+        border-radius: 9999px;
+        font-family: var(--font-ui);
+        font-weight: 600;
+        padding: 0.625rem 1.5rem;
+        transition: opacity 0.15s ease;
+        border: none;
+        cursor: pointer;
+        display: inline-flex;
+        align-items: center;
+        gap: 0.5rem;
+    }
+    .btn-damri-primary:hover { opacity: 0.88; }
+
+    /* Navy button — pill shaped */
+    .btn-damri-navy {
+        background-color: var(--damri-navy);
+        color: #ffffff;
+        border-radius: 9999px;
+        font-family: var(--font-ui);
+        font-weight: 600;
+        padding: 0.625rem 1.5rem;
+        transition: opacity 0.15s ease;
+        cursor: pointer;
+        display: inline-flex;
+        align-items: center;
+        gap: 0.5rem;
+    }
+    .btn-damri-navy:hover { opacity: 0.88; }
+
+    /* Status badges — pill shaped, from status_bus enum */
+    .badge-menunggu {
+        background-color: #e8e4dc;
+        color: #4a5568;
+        border-radius: 9999px;
+        font-family: var(--font-ui);
+        font-size: 0.75rem;
+        font-weight: 600;
+        padding: 0.2rem 0.75rem;
+        display: inline-block;
+    }
+    .badge-berangkat {
+        background-color: var(--damri-navy);
+        color: #ffffff;
+        border-radius: 9999px;
+        font-family: var(--font-ui);
+        font-size: 0.75rem;
+        font-weight: 600;
+        padding: 0.2rem 0.75rem;
+        display: inline-block;
+    }
+    .badge-selesai {
+        background-color: #d4cfc6;
+        color: var(--damri-ink);
+        border-radius: 9999px;
+        font-family: var(--font-ui);
+        font-size: 0.75rem;
+        font-weight: 600;
+        padding: 0.2rem 0.75rem;
+        display: inline-block;
+    }
+
+    /* Schedule card — white on cream canvas, hairline border, NO shadow */
+    .card-jadwal {
+        background-color: var(--damri-card);
+        border: 1px solid var(--border);
+        border-radius: 16px;
+        padding: 1.25rem;
+    }
+
+    /* Hero band — full-bleed DAMRI Navy, no border-radius per design.md */
+    .hero-navy {
+        background-color: var(--damri-navy);
+        color: #ffffff;
+    }
+
+    /* Display headline — Bricolage Grotesque, tight leading */
+    .display-headline {
+        font-family: var(--font-display);
+        font-weight: 800;
+        line-height: 1.0;
+        letter-spacing: -0.04em;
+        color: var(--damri-ink);
+    }
+
+    /* License plate — JetBrains Mono (nomor_polisi from bus table) */
+    .plate {
+        font-family: var(--font-mono);
+        font-weight: 700;
+        letter-spacing: 0.08em;
+        text-transform: uppercase;
+    }
+
+    /* Time data — JetBrains Mono (jam_keberangkatan / jam_kedatangan) */
+    .time-display {
+        font-family: var(--font-mono);
+        font-weight: 500;
+        letter-spacing: 0.02em;
+    }
+
+    /* Pill input — no shadow, hairline border */
+    .input-damri {
+        border: 1px solid var(--border);
+        border-radius: 9999px;
+        padding: 0.625rem 1.25rem;
+        font-family: var(--font-ui);
+        background-color: var(--damri-card);
+        color: var(--damri-ink);
+        width: 100%;
+        outline: none;
+        transition: border-color 0.15s ease;
+    }
+    .input-damri:focus {
+        border-color: var(--damri-navy);
+    }
+}
+
