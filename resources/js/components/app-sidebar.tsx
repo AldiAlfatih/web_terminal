@@ -4,7 +4,7 @@ import { NavUser } from '@/components/nav-user';
 import { Sidebar, SidebarContent, SidebarFooter, SidebarHeader, SidebarMenu, SidebarMenuButton, SidebarMenuItem } from '@/components/ui/sidebar';
 import { type NavItem } from '@/types';
 import { Link } from '@inertiajs/react';
-import { Bus, LayoutGrid, Map, Building2 } from 'lucide-react';
+import { Bus, Building2, FileText, LayoutGrid, Map, UserCheck } from 'lucide-react';
 import AppLogo from './app-logo';
 
 const mainNavItems: NavItem[] = [
@@ -24,6 +24,11 @@ const mainNavItems: NavItem[] = [
         icon: Bus,
     },
     {
+        title: 'Data Supir',
+        url: '/admin/supir',
+        icon: UserCheck,
+    },
+    {
         title: 'Rute',
         url: '/admin/rute',
         icon: Map,
@@ -32,6 +37,11 @@ const mainNavItems: NavItem[] = [
         title: 'Jadwal',
         url: '/admin/jadwal',
         icon: LayoutGrid,
+    },
+    {
+        title: 'Laporan PDF',
+        url: '/admin/laporan',
+        icon: FileText,
     },
 ];
 

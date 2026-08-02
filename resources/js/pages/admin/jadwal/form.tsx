@@ -20,10 +20,17 @@ interface RuteOption {
     tujuan: string;
 }
 
+interface SupirOption {
+    id_supir: number;
+    nama_supir: string;
+    no_telp: string;
+}
+
 interface JadwalItem {
     id_jadwal?: number;
     id_bus?: number;
     id_rute?: number;
+    id_supir?: number | null;
     tanggal?: string;
     jam_keberangkatan?: string;
     jam_kedatangan?: string;
@@ -35,9 +42,10 @@ interface FormProps {
     jadwal: JadwalItem | null;
     buses: BusOption[];
     rutes: RuteOption[];
+    supirs: SupirOption[];
 }
 
-export default function JadwalForm({ jadwal, buses, rutes }: FormProps) {
+export default function JadwalForm({ jadwal, buses, rutes, supirs }: FormProps) {
     const isEdit = !!jadwal?.id_jadwal;
 
     const todayStr = new Date().toISOString().split('T')[0];
@@ -45,6 +53,7 @@ export default function JadwalForm({ jadwal, buses, rutes }: FormProps) {
     const { data, setData, post, put, processing, errors } = useForm<{
         id_bus: string | number;
         id_rute: string | number;
+        id_supir: string | number;
         tanggal: string;
         jam_keberangkatan: string;
         jam_kedatangan: string;
@@ -54,6 +63,7 @@ export default function JadwalForm({ jadwal, buses, rutes }: FormProps) {
     }>({
         id_bus: jadwal?.id_bus || '',
         id_rute: jadwal?.id_rute || '',
+        id_supir: jadwal?.id_supir || '',
         tanggal: jadwal?.tanggal || todayStr,
         jam_keberangkatan: jadwal?.jam_keberangkatan ? jadwal.jam_keberangkatan.slice(0, 5) : '08:00',
         jam_kedatangan: jadwal?.jam_kedatangan ? jadwal.jam_kedatangan.slice(0, 5) : '12:00',
@@ -152,6 +162,29 @@ export default function JadwalForm({ jadwal, buses, rutes }: FormProps) {
                                 </select>
                                 <InputError message={errors.id_rute} />
                             </div>
+                        </div>
+
+                        {/* Supir Assignment */}
+                        <div className="flex flex-col gap-1.5">
+                            <label className="text-sm font-semibold" style={{ color: '#001A33' }}>
+                                Tugaskan Supir (Opsional)
+                            </label>
+                            <select
+                                value={data.id_supir}
+                                onChange={(e) => setData('id_supir', e.target.value)}
+                                className="input-damri"
+                            >
+                                <option value="">-- Belum Ditugaskan --</option>
+                                {supirs.map((s) => (
+                                    <option key={s.id_supir} value={s.id_supir}>
+                                        {s.nama_supir} ({s.no_telp})
+                                    </option>
+                                ))}
+                            </select>
+                            <InputError message={errors.id_supir} />
+                            <p className="text-xs" style={{ color: '#4a5568' }}>
+                                Supir yang ditugaskan akan melihat jadwal ini di Portal Supir mereka.
+                            </p>
                         </div>
 
                         <div className="grid grid-cols-1 md:grid-cols-3 gap-4">

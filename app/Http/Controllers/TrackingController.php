@@ -6,6 +6,7 @@ use App\Events\BusLocationUpdated;
 use App\Models\Jadwal;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Auth;
 use Inertia\Inertia;
 use Inertia\Response;
 
@@ -13,11 +14,15 @@ class TrackingController extends Controller
 {
     /**
      * Display the mobile web schedule selection portal for Supir (Driver).
+     * Only shows jadwal assigned to the authenticated supir for today.
      */
     public function supirIndex(): Response
     {
+        $supir = Auth::guard('supir')->user();
         $today = now()->toDateString();
+
         $jadwals = Jadwal::with(['bus.poBus', 'rute'])
+            ->where('id_supir', $supir->id_supir)
             ->whereDate('tanggal', $today)
             ->orderBy('jam_keberangkatan')
             ->get();
@@ -29,10 +34,14 @@ class TrackingController extends Controller
 
     /**
      * Display the mobile web tracking page for Supir (Driver).
+     * Validates that the jadwal belongs to the authenticated supir.
      */
     public function showDriverTracking(int $id_jadwal): Response
     {
+        $supir = Auth::guard('supir')->user();
+
         $jadwal = Jadwal::with(['bus.poBus', 'rute'])
+            ->where('id_supir', $supir->id_supir)
             ->findOrFail($id_jadwal);
 
         return Inertia::render('supir/tracking', [
@@ -46,13 +55,16 @@ class TrackingController extends Controller
     public function updateLocation(Request $request, int $id_jadwal): JsonResponse
     {
         $validated = $request->validate([
-            'lat'     => 'required|numeric',
-            'lng'     => 'required|numeric',
+            'lat' => 'required|numeric',
+            'lng' => 'required|numeric',
             'heading' => 'nullable|numeric',
-            'speed'   => 'nullable|numeric',
+            'speed' => 'nullable|numeric',
         ]);
 
-        $jadwal = Jadwal::findOrFail($id_jadwal);
+        $supir = Auth::guard('supir')->user();
+
+        $jadwal = Jadwal::where('id_supir', $supir->id_supir)
+            ->findOrFail($id_jadwal);
 
         // Auto-update status to 'berangkat' when tracking starts if currently 'menunggu'
         if ($jadwal->status_bus === 'menunggu') {
@@ -75,14 +87,14 @@ class TrackingController extends Controller
         ));
 
         return response()->json([
-            'status'     => 'success',
-            'message'    => 'Lokasi bus berhasil dipancarkan.',
+            'status' => 'success',
+            'message' => 'Lokasi bus berhasil dipancarkan.',
             'status_bus' => $jadwal->status_bus,
-            'data'       => [
-                'lat'     => $lat,
-                'lng'     => $lng,
+            'data' => [
+                'lat' => $lat,
+                'lng' => $lng,
                 'heading' => $heading,
-                'speed'   => $speed,
+                'speed' => $speed,
             ],
         ]);
     }
@@ -92,7 +104,11 @@ class TrackingController extends Controller
      */
     public function finishJourney(Request $request, int $id_jadwal): JsonResponse
     {
-        $jadwal = Jadwal::findOrFail($id_jadwal);
+        $supir = Auth::guard('supir')->user();
+
+        $jadwal = Jadwal::where('id_supir', $supir->id_supir)
+            ->findOrFail($id_jadwal);
+
         $jadwal->update(['status_bus' => 'selesai']);
 
         $lat = $request->input('lat', 0.0);
@@ -107,7 +123,7 @@ class TrackingController extends Controller
         ));
 
         return response()->json([
-            'status'  => 'success',
+            'status' => 'success',
             'message' => 'Perjalanan selesai.',
             'status_bus' => 'selesai',
         ]);

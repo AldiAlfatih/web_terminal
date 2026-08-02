@@ -16,9 +16,6 @@ class LoginRequest extends FormRequest
         return true;
     }
 
-    /**
-     * Use 'username' instead of 'email' to match the admin table schema.
-     */
     public function rules(): array
     {
         return [
@@ -28,21 +25,34 @@ class LoginRequest extends FormRequest
     }
 
     /**
-     * Authenticate using 'username' field (schema.md: admin.username).
+     * Authenticate using 'username' field against Admin (web guard) or Supir (supir guard).
      */
     public function authenticate(): void
     {
         $this->ensureIsNotRateLimited();
 
-        if (! Auth::attempt($this->only('username', 'password'), $this->boolean('remember'))) {
-            RateLimiter::hit($this->throttleKey());
+        $credentials = $this->only('username', 'password');
+        $remember = $this->boolean('remember');
 
-            throw ValidationException::withMessages([
-                'username' => __('auth.failed'),
-            ]);
+        // 1. Try Admin login (web guard)
+        if (Auth::guard('web')->attempt($credentials, $remember)) {
+            RateLimiter::clear($this->throttleKey());
+
+            return;
         }
 
-        RateLimiter::clear($this->throttleKey());
+        // 2. Try Supir login (supir guard)
+        if (Auth::guard('supir')->attempt($credentials, $remember)) {
+            RateLimiter::clear($this->throttleKey());
+
+            return;
+        }
+
+        RateLimiter::hit($this->throttleKey());
+
+        throw ValidationException::withMessages([
+            'username' => __('auth.failed'),
+        ]);
     }
 
     public function ensureIsNotRateLimited(): void

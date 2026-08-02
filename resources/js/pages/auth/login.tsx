@@ -1,6 +1,6 @@
 import { Head, useForm } from '@inertiajs/react';
-import { LoaderCircle, Bus } from 'lucide-react';
-import { FormEventHandler } from 'react';
+import { LoaderCircle, Bus, Eye, EyeOff } from 'lucide-react';
+import { FormEventHandler, useState } from 'react';
 import InputError from '@/components/input-error';
 
 interface LoginForm {
@@ -21,6 +21,8 @@ export default function Login({ status }: LoginProps) {
         password: '',
         remember: false,
     });
+
+    const [showPassword, setShowPassword] = useState(false);
 
     const submit: FormEventHandler = (e) => {
         e.preventDefault();
@@ -62,7 +64,7 @@ export default function Login({ status }: LoginProps) {
                         className="mt-1 text-sm font-medium"
                         style={{ color: '#003B70', fontFamily: "'Inter', sans-serif" }}
                     >
-                        Parepare — Admin Panel
+                        Parepare — Portal Akses Masuk
                     </p>
                 </div>
 
@@ -126,17 +128,32 @@ export default function Login({ status }: LoginProps) {
                             >
                                 Password
                             </label>
-                            <input
-                                id="password"
-                                type="password"
-                                required
-                                autoComplete="current-password"
-                                value={data.password}
-                                onChange={(e) => setData('password', e.target.value)}
-                                placeholder="Masukkan password"
-                                className="input-damri"
-                                tabIndex={2}
-                            />
+                            <div className="relative">
+                                <input
+                                    id="password"
+                                    type={showPassword ? "text" : "password"}
+                                    required
+                                    autoComplete="current-password"
+                                    value={data.password}
+                                    onChange={(e) => setData('password', e.target.value)}
+                                    placeholder="Masukkan password"
+                                    className="input-damri pr-12"
+                                    tabIndex={2}
+                                />
+
+                                <button
+                                    type="button"
+                                    onClick={() => setShowPassword(!showPassword)}
+                                    className="absolute inset-y-0 right-3 flex items-center text-gray-500 hover:text-[#003B70] transition-colors"
+                                    tabIndex={-1}
+                                >
+                                    {showPassword ? (
+                                        <EyeOff size={20} />
+                                    ) : (
+                                        <Eye size={20} />
+                                    )}
+                                </button>
+                            </div>
                             <InputError message={errors.password} />
                         </div>
 

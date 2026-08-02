@@ -21,6 +21,9 @@ interface JadwalItem {
         asal: string;
         tujuan: string;
     };
+    supir?: {
+        nama_supir: string;
+    } | null;
 }
 
 interface IndexProps {
@@ -109,6 +112,9 @@ export default function JadwalIndex({ jadwals }: IndexProps) {
                                     <th className="px-4 py-3 text-left text-xs font-semibold uppercase tracking-wider" style={{ color: '#4a5568' }}>
                                         Status
                                     </th>
+                                    <th className="px-4 py-3 text-left text-xs font-semibold uppercase tracking-wider" style={{ color: '#4a5568' }}>
+                                        Supir
+                                    </th>
                                     <th className="px-4 py-3 text-right text-xs font-semibold uppercase tracking-wider" style={{ color: '#4a5568' }}>
                                         Aksi
                                     </th>
@@ -159,6 +165,11 @@ export default function JadwalIndex({ jadwals }: IndexProps) {
                                         </td>
                                         <td className="px-4 py-3">
                                             <StatusBadge status={j.status_bus} />
+                                        </td>
+                                        <td className="px-4 py-3 text-sm" style={{ color: '#001A33' }}>
+                                            {j.supir?.nama_supir || (
+                                                <span className="text-xs text-gray-400 italic">Belum ditugaskan</span>
+                                            )}
                                         </td>
                                         <td className="px-4 py-3 text-right">
                                             <div className="flex justify-end gap-2">

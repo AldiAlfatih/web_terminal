@@ -1,5 +1,8 @@
 <?php
 
+use App\Models\Admin;
+use App\Models\Supir;
+
 return [
 
     /*
@@ -40,6 +43,10 @@ return [
             'driver' => 'session',
             'provider' => 'users',
         ],
+        'supir' => [
+            'driver' => 'session',
+            'provider' => 'supirs',
+        ],
     ],
 
     /*
@@ -62,7 +69,12 @@ return [
     'providers' => [
         'users' => [
             'driver' => 'eloquent',
-            'model'  => env('AUTH_MODEL', App\Models\Admin::class),
+            'model' => env('AUTH_MODEL', Admin::class),
+        ],
+
+        'supirs' => [
+            'driver' => 'eloquent',
+            'model' => Supir::class,
         ],
 
         // 'users' => [

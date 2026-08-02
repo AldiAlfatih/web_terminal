@@ -1,7 +1,7 @@
 import AppLayout from '@/layouts/app-layout';
 import { type BreadcrumbItem } from '@/types';
 import { Head } from '@inertiajs/react';
-import { Bus, Map, Building2, Calendar, Clock, CheckCircle2, Timer } from 'lucide-react';
+import { Bus, Building2, Calendar, CheckCircle2, Clock, FileText, Map, Timer, UserCheck } from 'lucide-react';
 
 const breadcrumbs: BreadcrumbItem[] = [
     {
@@ -13,8 +13,10 @@ const breadcrumbs: BreadcrumbItem[] = [
 interface Stats {
     total_bus: number;
     total_po: number;
+    total_supir: number;
     total_rute: number;
     total_jadwal: number;
+    total_laporan: number;
     jadwal_hari_ini: number;
     sedang_berangkat: number;
     menunggu: number;
@@ -62,7 +64,6 @@ export default function Dashboard({ stats, jadwal_terbaru }: DashboardProps) {
             bg: '#003B70',
             color: '#ffffff',
             iconColor: '#FFC627',
-            span: 'col-span-1',
         },
         {
             label: 'Perusahaan Otobus',
@@ -71,7 +72,14 @@ export default function Dashboard({ stats, jadwal_terbaru }: DashboardProps) {
             bg: '#ffffff',
             color: '#001A33',
             iconColor: '#003B70',
-            span: 'col-span-1',
+        },
+        {
+            label: 'Data Supir',
+            value: stats?.total_supir ?? 0,
+            icon: UserCheck,
+            bg: '#ffffff',
+            color: '#001A33',
+            iconColor: '#003B70',
         },
         {
             label: 'Total Rute',
@@ -80,7 +88,6 @@ export default function Dashboard({ stats, jadwal_terbaru }: DashboardProps) {
             bg: '#ffffff',
             color: '#001A33',
             iconColor: '#003B70',
-            span: 'col-span-1',
         },
         {
             label: 'Total Jadwal',
@@ -89,7 +96,14 @@ export default function Dashboard({ stats, jadwal_terbaru }: DashboardProps) {
             bg: '#ffffff',
             color: '#001A33',
             iconColor: '#003B70',
-            span: 'col-span-1',
+        },
+        {
+            label: 'Laporan PDF',
+            value: stats?.total_laporan ?? 0,
+            icon: FileText,
+            bg: '#ffffff',
+            color: '#001A33',
+            iconColor: '#003B70',
         },
     ];
 
@@ -152,7 +166,7 @@ export default function Dashboard({ stats, jadwal_terbaru }: DashboardProps) {
                     >
                         Master Data
                     </p>
-                    <div className="grid grid-cols-2 gap-4 md:grid-cols-4">
+                    <div className="grid grid-cols-2 gap-4 md:grid-cols-6">
                         {bentoCards.map((card) => {
                             const Icon = card.icon;
                             return (

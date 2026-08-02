@@ -1,5 +1,5 @@
-import { Head, Link } from '@inertiajs/react';
-import { ArrowRight, Bus, Calendar, Clock, Navigation, ShieldCheck } from 'lucide-react';
+import { Head, Link, usePage } from '@inertiajs/react';
+import { Bus, LogOut, Navigation } from 'lucide-react';
 
 interface JadwalItem {
     id_jadwal: number;
@@ -26,6 +26,9 @@ interface SupirIndexProps {
 }
 
 export default function SupirIndex({ jadwals }: SupirIndexProps) {
+    const { auth } = usePage<{ auth: { supir: { nama_supir: string; username: string } | null } }>().props;
+    const supir = auth?.supir;
+
     return (
         <>
             <Head title="Portal Supir — Terminal Induk Parepare" />
@@ -48,13 +51,37 @@ export default function SupirIndex({ jadwals }: SupirIndexProps) {
                         </span>
                     </div>
 
-                    <span
-                        className="rounded-full px-3 py-1 text-xs font-bold"
-                        style={{ backgroundColor: 'rgba(255, 198, 39, 0.2)', color: '#FFC627' }}
-                    >
-                        Terminal Parepare
-                    </span>
+                    <div className="flex items-center gap-2">
+                        <span
+                            className="rounded-full px-3 py-1 text-xs font-bold"
+                            style={{ backgroundColor: 'rgba(255, 198, 39, 0.2)', color: '#FFC627' }}
+                        >
+                            Terminal Parepare
+                        </span>
+                    </div>
                 </div>
+
+                {/* ─── Supir Info & Logout ─── */}
+                {supir && (
+                    <div className="flex items-center justify-between mt-3 rounded-2xl p-3"
+                        style={{ backgroundColor: 'rgba(255, 255, 255, 0.08)', border: '1px solid rgba(255, 255, 255, 0.15)' }}
+                    >
+                        <div>
+                            <p className="text-[10px] uppercase tracking-widest text-white/60">Supir Login</p>
+                            <p className="text-sm font-bold text-white">{supir.nama_supir}</p>
+                        </div>
+                        <Link
+                            href={route('logout')}
+                            method="post"
+                            as="button"
+                            className="inline-flex items-center gap-1.5 rounded-full px-3 py-1.5 text-xs font-semibold transition-all active:scale-95"
+                            style={{ backgroundColor: 'rgba(239, 68, 68, 0.2)', color: '#fca5a5', border: '1px solid rgba(239, 68, 68, 0.3)' }}
+                        >
+                            <LogOut size={14} />
+                            Keluar
+                        </Link>
+                    </div>
+                )}
 
                 {/* ─── Main Content ─── */}
                 <div className="my-auto flex flex-col gap-5 py-6">
@@ -64,10 +91,10 @@ export default function SupirIndex({ jadwals }: SupirIndexProps) {
                             className="text-3xl font-extrabold text-white leading-tight"
                             style={{ fontFamily: "'Bricolage Grotesque', sans-serif" }}
                         >
-                            Pilih Jadwal Perjalanan
+                            Jadwal Perjalanan Anda
                         </h1>
                         <p className="text-xs text-white/70 mt-1">
-                            Pilih bus & rute yang akan Anda kemudikan hari ini untuk mengaktifkan pancaran GPS live.
+                            Berikut jadwal yang ditugaskan kepada Anda hari ini. Pilih jadwal untuk mengaktifkan pancaran GPS live.
                         </p>
                     </div>
 
@@ -140,7 +167,7 @@ export default function SupirIndex({ jadwals }: SupirIndexProps) {
                         ) : (
                             <div className="rounded-2xl p-8 text-center bg-white/5 border border-white/10">
                                 <Bus size={36} color="#FFC627" className="mx-auto mb-2" />
-                                <p className="text-sm font-semibold text-white">Belum ada jadwal perjalanan untuk hari ini.</p>
+                                <p className="text-sm font-semibold text-white">Belum ada jadwal perjalanan yang ditugaskan untuk Anda hari ini.</p>
                             </div>
                         )}
                     </div>

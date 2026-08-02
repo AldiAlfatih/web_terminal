@@ -28,18 +28,26 @@
    - `tujuan` (varchar)
    - `keterangan_rute` (text)
 
-5. **jadwal**
+5. **supir**
+   - `id_supir` (PK, auto_increment)
+   - `nama_supir` (varchar)
+   - `no_telp` (varchar)
+   - `username` (varchar, unique)
+   - `password` (varchar, hashed)
+
+6. **jadwal**
    - `id_jadwal` (PK, auto_increment)
    - `id_bus` (FK -> bus.id_bus)
    - `id_rute` (FK -> rute.id_rute)
    - `id_admin` (FK -> admin.id_admin)
+   - `id_supir` (FK -> supir.id_supir, nullable)
    - `tanggal` (date)
    - `jam_keberangkatan` (time)
    - `jam_kedatangan` (time)
    - `status_bus` (enum: 'menunggu', 'berangkat', 'selesai')
    - `keterangan` (text)
 
-6. **laporan**
+7. **laporan**
    - `id_laporan` (PK, auto_increment)
    - `id_admin` (FK -> admin.id_admin)
    - `tanggal_laporan` (date)

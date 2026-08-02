@@ -1,6 +1,6 @@
-import { Head } from '@inertiajs/react';
+import { Head, usePage } from '@inertiajs/react';
 import axios from 'axios';
-import { ArrowRight, Bus, CheckCircle, Compass, MapPin, Navigation, NavigationOff, ShieldAlert, Zap } from 'lucide-react';
+import { ArrowRight, Bus, CheckCircle, Compass, NavigationOff, Navigation, ShieldAlert, Zap } from 'lucide-react';
 import { useCallback, useEffect, useRef, useState } from 'react';
 
 interface JadwalProps {
@@ -28,6 +28,9 @@ interface TrackingPageProps {
 }
 
 export default function SupirTracking({ jadwal }: TrackingPageProps) {
+    const { auth } = usePage<{ auth: { supir: { nama_supir: string; username: string } | null } }>().props;
+    const supir = auth?.supir;
+
     const [isTracking, setIsTracking] = useState<boolean>(jadwal.status_bus === 'berangkat');
     const [statusBus, setStatusBus] = useState<'menunggu' | 'berangkat' | 'selesai'>(jadwal.status_bus);
     const [wakeLockActive, setWakeLockActive] = useState<boolean>(false);
@@ -238,6 +241,19 @@ export default function SupirTracking({ jadwal }: TrackingPageProps) {
                             {statusBus === 'berangkat' ? '● Di Jalan' : statusBus === 'selesai' ? '✓ Selesai' : 'Menunggu'}
                         </span>
                     </div>
+
+                    {/* Supir Info */}
+                    {supir && (
+                        <div
+                            className="rounded-2xl px-4 py-2.5 flex items-center justify-between"
+                            style={{ backgroundColor: 'rgba(255, 198, 39, 0.1)', border: '1px solid rgba(255, 198, 39, 0.2)' }}
+                        >
+                            <div>
+                                <p className="text-[10px] uppercase tracking-widest text-white/50">Supir</p>
+                                <p className="text-sm font-bold text-white">{supir.nama_supir}</p>
+                            </div>
+                        </div>
+                    )}
 
                     {/* Bus & License Plate Card */}
                     <div

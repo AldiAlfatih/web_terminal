@@ -8,12 +8,14 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
 class Jadwal extends Model
 {
     protected $table = 'jadwal';
+
     protected $primaryKey = 'id_jadwal';
 
     protected $fillable = [
         'id_bus',
         'id_rute',
         'id_admin',
+        'id_supir',
         'tanggal',
         'jam_keberangkatan',
         'jam_kedatangan',
@@ -39,5 +41,10 @@ class Jadwal extends Model
     public function admin(): BelongsTo
     {
         return $this->belongsTo(Admin::class, 'id_admin', 'id_admin');
+    }
+
+    public function supir(): BelongsTo
+    {
+        return $this->belongsTo(Supir::class, 'id_supir', 'id_supir');
     }
 }

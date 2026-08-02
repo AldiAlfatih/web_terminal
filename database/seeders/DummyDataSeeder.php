@@ -5,8 +5,10 @@ namespace Database\Seeders;
 use App\Models\Admin;
 use App\Models\Bus;
 use App\Models\Jadwal;
+use App\Models\Laporan;
 use App\Models\PoBus;
 use App\Models\Rute;
+use App\Models\Supir;
 use Illuminate\Database\Seeder;
 
 class DummyDataSeeder extends Seeder
@@ -18,9 +20,9 @@ class DummyDataSeeder extends Seeder
             ['username' => 'admin'],
             [
                 'nama_admin' => 'Super Admin',
-                'username'   => 'admin',
-                'password'   => bcrypt('admin123'),
-                'level'      => 'superadmin',
+                'username' => 'admin',
+                'password' => bcrypt('admin123'),
+                'level' => 'superadmin',
             ]
         );
 
@@ -28,7 +30,7 @@ class DummyDataSeeder extends Seeder
         $poDamri = PoBus::firstOrCreate(
             ['nama_po' => 'PO DAMRI'],
             [
-                'alamat_po'  => 'Jl. Nusantara No. 45, Parepare',
+                'alamat_po' => 'Jl. Nusantara No. 45, Parepare',
                 'no_telp_po' => '081144556677',
             ]
         );
@@ -36,7 +38,7 @@ class DummyDataSeeder extends Seeder
         $poBintang = PoBus::firstOrCreate(
             ['nama_po' => 'PO Bintang Prima'],
             [
-                'alamat_po'  => 'Jl. Bau Massepe No. 12, Parepare',
+                'alamat_po' => 'Jl. Bau Massepe No. 12, Parepare',
                 'no_telp_po' => '085299887766',
             ]
         );
@@ -45,8 +47,8 @@ class DummyDataSeeder extends Seeder
         $bus1 = Bus::firstOrCreate(
             ['nomor_polisi' => 'DD 7788 AB'],
             [
-                'id_po'        => $poDamri->id_po,
-                'nama_bus'     => 'DAMRI Royal Executive 01',
+                'id_po' => $poDamri->id_po,
+                'nama_bus' => 'DAMRI Royal Executive 01',
                 'nomor_polisi' => 'DD 7788 AB',
             ]
         );
@@ -54,8 +56,8 @@ class DummyDataSeeder extends Seeder
         $bus2 = Bus::firstOrCreate(
             ['nomor_polisi' => 'DD 8899 BP'],
             [
-                'id_po'        => $poBintang->id_po,
-                'nama_bus'     => 'Bintang Prima Sleeper 02',
+                'id_po' => $poBintang->id_po,
+                'nama_bus' => 'Bintang Prima Sleeper 02',
                 'nomor_polisi' => 'DD 8899 BP',
             ]
         );
@@ -75,32 +77,67 @@ class DummyDataSeeder extends Seeder
             ]
         );
 
-        // 5. Sample Jadwal
+        // 5. Sample Supir
+        $supir1 = Supir::firstOrCreate(
+            ['username' => 'supir1'],
+            [
+                'nama_supir' => 'Andi Mappangara',
+                'no_telp' => '081234567890',
+                'username' => 'supir1',
+                'password' => bcrypt('supir123'),
+            ]
+        );
+
+        $supir2 = Supir::firstOrCreate(
+            ['username' => 'supir2'],
+            [
+                'nama_supir' => 'Baso Ridwan',
+                'no_telp' => '085298765432',
+                'username' => 'supir2',
+                'password' => bcrypt('supir123'),
+            ]
+        );
+
+        // 6. Sample Jadwal (assigned to supirs)
         Jadwal::firstOrCreate(
             ['id_jadwal' => 1],
             [
-                'id_bus'            => $bus1->id_bus,
-                'id_rute'           => $rute1->id_rute,
-                'id_admin'          => $admin->id_admin,
-                'tanggal'           => now()->toDateString(),
+                'id_bus' => $bus1->id_bus,
+                'id_rute' => $rute1->id_rute,
+                'id_admin' => $admin->id_admin,
+                'id_supir' => $supir1->id_supir,
+                'tanggal' => now()->toDateString(),
                 'jam_keberangkatan' => '08:00',
-                'jam_kedatangan'    => '11:30',
-                'status_bus'        => 'menunggu',
-                'keterangan'        => 'Keberangkatan Pagi Reguler DAMRI',
+                'jam_kedatangan' => '11:30',
+                'status_bus' => 'menunggu',
+                'keterangan' => 'Keberangkatan Pagi Reguler DAMRI',
             ]
         );
 
         Jadwal::firstOrCreate(
             ['id_jadwal' => 2],
             [
-                'id_bus'            => $bus2->id_bus,
-                'id_rute'           => $rute2->id_rute,
-                'id_admin'          => $admin->id_admin,
-                'tanggal'           => now()->toDateString(),
+                'id_bus' => $bus2->id_bus,
+                'id_rute' => $rute2->id_rute,
+                'id_admin' => $admin->id_admin,
+                'id_supir' => $supir2->id_supir,
+                'tanggal' => now()->toDateString(),
                 'jam_keberangkatan' => '10:00',
-                'jam_kedatangan'    => '16:00',
-                'status_bus'        => 'menunggu',
-                'keterangan'        => 'Keberangkatan Siang Bintang Prima',
+                'jam_kedatangan' => '16:00',
+                'status_bus' => 'menunggu',
+                'keterangan' => 'Keberangkatan Siang Bintang Prima',
+            ]
+        );
+
+        // 7. Sample Laporan
+        Laporan::firstOrCreate(
+            ['id_laporan' => 1],
+            [
+                'id_admin' => $admin->id_admin,
+                'tanggal_laporan' => now()->toDateString(),
+                'periode_awal' => now()->startOfMonth()->toDateString(),
+                'jenis_laporan' => 'Jadwal Keberangkatan Bus',
+                'file_pdf' => null,
             ]
         );
     }
