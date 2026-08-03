@@ -36,6 +36,7 @@ class LoginRequest extends FormRequest
 
         // 1. Try Admin login (web guard)
         if (Auth::guard('web')->attempt($credentials, $remember)) {
+            Auth::guard('supir')->logout();
             RateLimiter::clear($this->throttleKey());
 
             return;
@@ -43,6 +44,7 @@ class LoginRequest extends FormRequest
 
         // 2. Try Supir login (supir guard)
         if (Auth::guard('supir')->attempt($credentials, $remember)) {
+            Auth::guard('web')->logout();
             RateLimiter::clear($this->throttleKey());
 
             return;

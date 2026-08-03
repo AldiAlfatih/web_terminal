@@ -29,33 +29,38 @@ class AuthenticatedSessionController extends Controller
      */
     public function store(LoginRequest $request): RedirectResponse
     {
+        // Clear any previous active guard sessions before authenticating new user
+        Auth::guard('web')->logout();
+        Auth::guard('supir')->logout();
+
         $request->authenticate();
 
         $request->session()->regenerate();
 
+        // Check Admin (web guard) first
+        if (Auth::guard('web')->check()) {
+            return redirect()->intended(route('dashboard', absolute: false));
+        }
+
+        // Check Supir (supir guard)
         if (Auth::guard('supir')->check()) {
             return redirect()->intended(route('supir.index', absolute: false));
         }
 
-        return redirect()->intended(route('dashboard', absolute: false));
+        return redirect('/');
     }
 
     /**
-     * Destroy an authenticated session.
+     * Destroy an authenticated session for all guards cleanly.
      */
     public function destroy(Request $request): RedirectResponse
     {
-        if (Auth::guard('supir')->check()) {
-            Auth::guard('supir')->logout();
-        }
-
-        if (Auth::guard('web')->check()) {
-            Auth::guard('web')->logout();
-        }
+        Auth::guard('web')->logout();
+        Auth::guard('supir')->logout();
 
         $request->session()->invalidate();
         $request->session()->regenerateToken();
 
-        return redirect('/');
+        return redirect()->route('login');
     }
 }

@@ -78,7 +78,7 @@ export default function Welcome({ jadwals, search = '' }: WelcomeProps) {
                             style={{ border: '1px solid rgba(255, 255, 255, 0.2)' }}
                         >
                             <ShieldCheck size={14} color="#FFC627" />
-                            Login Admin
+                            Login
                         </Link>
                     </div>
                 </header>

@@ -14,16 +14,15 @@ class TrackingController extends Controller
 {
     /**
      * Display the mobile web schedule selection portal for Supir (Driver).
-     * Only shows jadwal assigned to the authenticated supir for today.
+     * Shows all schedules assigned to the authenticated supir, ordered by date and time.
      */
     public function supirIndex(): Response
     {
         $supir = Auth::guard('supir')->user();
-        $today = now()->toDateString();
 
         $jadwals = Jadwal::with(['bus.poBus', 'rute'])
             ->where('id_supir', $supir->id_supir)
-            ->whereDate('tanggal', $today)
+            ->orderBy('tanggal', 'desc')
             ->orderBy('jam_keberangkatan')
             ->get();
 
