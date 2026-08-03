@@ -16,7 +16,7 @@ class DummyDataSeeder extends Seeder
     public function run(): void
     {
         // 1. Ensure Admin exists
-        $admin = Admin::firstOrCreate(
+        $admin = Admin::updateOrCreate(
             ['username' => 'admin'],
             [
                 'nama_admin' => 'Super Admin',
@@ -99,7 +99,7 @@ class DummyDataSeeder extends Seeder
         );
 
         // 6. Sample Jadwal (assigned to supirs)
-        Jadwal::firstOrCreate(
+        Jadwal::updateOrCreate(
             ['id_jadwal' => 1],
             [
                 'id_bus' => $bus1->id_bus,
@@ -114,7 +114,7 @@ class DummyDataSeeder extends Seeder
             ]
         );
 
-        Jadwal::firstOrCreate(
+        Jadwal::updateOrCreate(
             ['id_jadwal' => 2],
             [
                 'id_bus' => $bus2->id_bus,
@@ -130,7 +130,7 @@ class DummyDataSeeder extends Seeder
         );
 
         // 7. Sample Laporan
-        Laporan::firstOrCreate(
+        Laporan::updateOrCreate(
             ['id_laporan' => 1],
             [
                 'id_admin' => $admin->id_admin,
