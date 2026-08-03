@@ -1,6 +1,6 @@
-import { Head, usePage } from '@inertiajs/react';
+import { Head, Link, usePage } from '@inertiajs/react';
 import axios from 'axios';
-import { ArrowRight, Bus, CheckCircle, Compass, NavigationOff, Navigation, ShieldAlert, Zap } from 'lucide-react';
+import { ArrowLeft, ArrowRight, Bus, CheckCircle, Compass, LogOut, NavigationOff, Navigation, ShieldAlert, Zap } from 'lucide-react';
 import { useCallback, useEffect, useRef, useState } from 'react';
 
 interface JadwalProps {
@@ -214,32 +214,54 @@ export default function SupirTracking({ jadwal }: TrackingPageProps) {
             >
                 {/* ─── Top Header: Bus & Route Info ─── */}
                 <div className="flex flex-col gap-3">
-                    {/* Header bar */}
+                    {/* Header bar with Back & Logout Buttons */}
                     <div className="flex items-center justify-between border-b pb-3 border-white/20">
                         <div className="flex items-center gap-2">
-                            <Bus size={22} color="#FFC627" />
-                            <span
-                                className="text-sm font-bold tracking-tight text-white"
-                                style={{ fontFamily: "'Bricolage Grotesque', sans-serif" }}
+                            <Link
+                                href={route('supir.index')}
+                                className="inline-flex h-8 w-8 items-center justify-center rounded-full bg-white/10 hover:bg-white/20 text-white transition-all shrink-0"
+                                title="Kembali ke Portal Supir"
                             >
-                                TERMINAL PAREPARE
-                            </span>
+                                <ArrowLeft size={16} />
+                            </Link>
+                            <div className="flex items-center gap-1.5">
+                                <Bus size={20} color="#FFC627" />
+                                <span
+                                    className="text-sm font-bold tracking-tight text-white"
+                                    style={{ fontFamily: "'Bricolage Grotesque', sans-serif" }}
+                                >
+                                    TERMINAL PAREPARE
+                                </span>
+                            </div>
                         </div>
-                        {/* Status Badge */}
-                        <span
-                            className="rounded-full px-3 py-1 text-xs font-bold uppercase tracking-wider"
-                            style={{
-                                backgroundColor:
-                                    statusBus === 'berangkat'
-                                        ? '#FFC627'
-                                        : statusBus === 'selesai'
-                                        ? '#22c55e'
-                                        : '#ffffff',
-                                color: '#001A33',
-                            }}
-                        >
-                            {statusBus === 'berangkat' ? '● Di Jalan' : statusBus === 'selesai' ? '✓ Selesai' : 'Menunggu'}
-                        </span>
+
+                        {/* Status Badge & Logout Button */}
+                        <div className="flex items-center gap-2">
+                            <span
+                                className="rounded-full px-2.5 py-1 text-xs font-bold uppercase tracking-wider"
+                                style={{
+                                    backgroundColor:
+                                        statusBus === 'berangkat'
+                                            ? '#FFC627'
+                                            : statusBus === 'selesai'
+                                            ? '#22c55e'
+                                            : '#ffffff',
+                                    color: '#001A33',
+                                }}
+                            >
+                                {statusBus === 'berangkat' ? '● Di Jalan' : statusBus === 'selesai' ? '✓ Selesai' : 'Menunggu'}
+                            </span>
+                            <Link
+                                href={route('logout')}
+                                method="post"
+                                as="button"
+                                className="inline-flex items-center gap-1 rounded-full px-3 py-1 text-xs font-semibold transition-all active:scale-95"
+                                style={{ backgroundColor: 'rgba(239, 68, 68, 0.2)', color: '#fca5a5', border: '1px solid rgba(239, 68, 68, 0.3)' }}
+                            >
+                                <LogOut size={13} />
+                                Keluar
+                            </Link>
+                        </div>
                     </div>
 
                     {/* Supir Info */}
@@ -315,19 +337,43 @@ export default function SupirTracking({ jadwal }: TrackingPageProps) {
                     )}
 
                     {statusBus === 'selesai' ? (
-                        <div className="flex flex-col items-center gap-3 text-center">
+                        <div className="flex flex-col items-center gap-4 text-center">
                             <div className="flex h-24 w-24 items-center justify-center rounded-full bg-green-500/20 border-2 border-green-500">
                                 <CheckCircle size={48} className="text-green-400" />
                             </div>
-                            <h2
-                                className="text-2xl font-bold text-white"
-                                style={{ fontFamily: "'Bricolage Grotesque', sans-serif" }}
-                            >
-                                Perjalanan Selesai
-                            </h2>
-                            <p className="text-xs text-white/70 max-w-xs">
-                                Terima kasih Pak Supir! Seluruh data perjalanan dan titik lokasi telah tersimpan.
-                            </p>
+                            <div>
+                                <h2
+                                    className="text-2xl font-bold text-white"
+                                    style={{ fontFamily: "'Bricolage Grotesque', sans-serif" }}
+                                >
+                                    Perjalanan Selesai
+                                </h2>
+                                <p className="text-xs text-white/70 max-w-xs mt-1">
+                                    Terima kasih Pak Supir! Seluruh data perjalanan dan titik lokasi telah tersimpan.
+                                </p>
+                            </div>
+
+                            {/* Action Buttons when Finished */}
+                            <div className="flex items-center gap-3 mt-2">
+                                <Link
+                                    href={route('supir.index')}
+                                    className="inline-flex items-center gap-2 rounded-full px-5 py-2.5 text-xs font-bold transition-all active:scale-95"
+                                    style={{ backgroundColor: '#ffffff', color: '#001A33' }}
+                                >
+                                    <ArrowLeft size={14} />
+                                    Kembali ke Portal
+                                </Link>
+                                <Link
+                                    href={route('logout')}
+                                    method="post"
+                                    as="button"
+                                    className="inline-flex items-center gap-2 rounded-full px-5 py-2.5 text-xs font-bold transition-all active:scale-95"
+                                    style={{ backgroundColor: '#ef4444', color: '#ffffff' }}
+                                >
+                                    <LogOut size={14} />
+                                    Keluar / Logout
+                                </Link>
+                            </div>
                         </div>
                     ) : (
                         <div className="flex flex-col items-center gap-4">
