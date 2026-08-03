@@ -14,6 +14,7 @@ return new class extends Migration
             $table->string('username')->unique();
             $table->string('password');
             $table->enum('level', ['superadmin', 'petugas']);
+            $table->rememberToken();
             $table->timestamps();
         });
     }
