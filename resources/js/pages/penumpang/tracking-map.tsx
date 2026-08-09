@@ -158,7 +158,6 @@ export default function PassengerTrackingMap({ jadwal }: TrackingMapPageProps) {
                 display: flex;
                 flex-direction: column;
                 align-items: center;
-                transform: translate(-50%, -100%);
                 cursor: pointer;
             ">
                 <!-- Outer Animated Pulse Ring -->
