@@ -192,11 +192,12 @@ class LaporanController extends Controller
                 ->whereMonth(DB::raw('COALESCE(submitted_at, tanggal_laporan, created_at)'), $bulan);
 
             $monthName = $monthNames[$bulan] ?? 'Bulan';
-            $formattedPeriode = "Agustus {$tahun}";
             if (isset($monthNames[$bulan])) {
                 $startOfMonth = Carbon::createFromDate($tahun, $bulan, 1)->locale('id')->translatedFormat('d F Y');
                 $endOfMonth = Carbon::createFromDate($tahun, $bulan, 1)->endOfMonth()->locale('id')->translatedFormat('d F Y');
                 $formattedPeriode = "{$startOfMonth} – {$endOfMonth}";
+            } else {
+                $formattedPeriode = "Bulan {$bulan} {$tahun}";
             }
             $filename = "Laporan_Bulanan_Operasional_{$monthName}-{$tahun}.pdf";
         }
@@ -285,11 +286,12 @@ class LaporanController extends Controller
                 ->whereMonth(DB::raw('COALESCE(submitted_at, tanggal_laporan, created_at)'), $bulan);
 
             $monthName = $monthNames[$bulan] ?? 'Bulan';
-            $formattedPeriode = "Agustus {$tahun}";
             if (isset($monthNames[$bulan])) {
                 $startOfMonth = Carbon::createFromDate($tahun, $bulan, 1)->locale('id')->translatedFormat('d F Y');
                 $endOfMonth = Carbon::createFromDate($tahun, $bulan, 1)->endOfMonth()->locale('id')->translatedFormat('d F Y');
                 $formattedPeriode = "{$startOfMonth} – {$endOfMonth}";
+            } else {
+                $formattedPeriode = "Bulan {$bulan} {$tahun}";
             }
             $filename = "Laporan_Bulanan_Operasional_{$monthName}-{$tahun}.pdf";
         }
@@ -329,7 +331,7 @@ class LaporanController extends Controller
                     'total_akap' => (int) $items->where('akap_akdp', 'AKAP')->count(),
                     'total_akdp' => (int) $items->where('akap_akdp', 'AKDP')->count(),
                 ];
-            })->values()->toArray();
+            })->values()->all();
         }
 
         $documentDate = Carbon::now()->locale('id')->translatedFormat('d F Y');

@@ -118,12 +118,23 @@ export default function LaporanDetail({
     const formatTimeOnly = (dateTimeStr: string) => {
         if (!dateTimeStr) return '-';
         try {
-            const dateObj = new Date(dateTimeStr);
+            let val = String(dateTimeStr).trim();
+            if (val.length === 19 && !val.endsWith('Z') && !val.includes('+')) {
+                val = val.replace(' ', 'T') + 'Z';
+            }
+            const dateObj = new Date(val);
             if (isNaN(dateObj.getTime())) {
                 return dateTimeStr.slice(11, 16);
             }
-            const hours = String(dateObj.getHours()).padStart(2, '0');
-            const minutes = String(dateObj.getMinutes()).padStart(2, '0');
+            const parts = new Intl.DateTimeFormat('id-ID', {
+                hour: '2-digit',
+                minute: '2-digit',
+                hour12: false,
+                timeZone: 'Asia/Makassar',
+            }).formatToParts(dateObj);
+
+            const hours = parts.find((p) => p.type === 'hour')?.value.padStart(2, '0') || '00';
+            const minutes = parts.find((p) => p.type === 'minute')?.value.padStart(2, '0') || '00';
             return `${hours}:${minutes}`;
         } catch {
             return '-';

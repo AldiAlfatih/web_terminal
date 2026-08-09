@@ -277,9 +277,12 @@
                 </thead>
                 <tbody>
                     @foreach ($group['items'] as $idx => $r)
+                        @php
+                            $dispTime = is_array($r) ? ($r['display_time'] ?? '-') : ($r->display_time ?? '-');
+                        @endphp
                         <tr>
                             <td class="text-center font-mono">{{ $idx + 1 }}</td>
-                            <td class="text-center font-mono font-bold">{{ $r->submitted_at ? $r->submitted_at->format('H:i') : '-' }}</td>
+                            <td class="text-center font-mono font-bold">{{ $dispTime }}</td>
                             <td class="font-bold">{{ $r->nama_po }}</td>
                             <td class="font-mono">{{ $r->nomor_polisi }}</td>
                             <td>{{ $r->asal }}</td>
@@ -418,9 +421,12 @@
             </thead>
             <tbody>
                 @forelse ($laporans as $idx => $r)
+                    @php
+                        $dispTime = is_array($r) ? ($r['display_time'] ?? '-') : ($r->display_time ?? '-');
+                    @endphp
                     <tr>
                         <td class="text-center font-mono">{{ $idx + 1 }}</td>
-                        <td class="text-center font-mono font-bold">{{ $r->submitted_at ? $r->submitted_at->format('H:i') : '-' }}</td>
+                        <td class="text-center font-mono font-bold">{{ $dispTime }}</td>
                         <td class="font-bold">{{ $r->nama_po }}</td>
                         <td class="font-mono">{{ $r->nomor_polisi }}</td>
                         <td>{{ $r->asal }}</td>

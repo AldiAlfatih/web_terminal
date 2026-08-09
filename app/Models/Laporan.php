@@ -2,6 +2,7 @@
 
 namespace App\Models;
 
+use Carbon\Carbon;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 
@@ -41,6 +42,28 @@ class Laporan extends Model
         'tanggal_laporan' => 'date',
         'periode_awal' => 'date',
     ];
+
+    protected $appends = [
+        'display_time',
+    ];
+
+    public function getDisplayTimeAttribute(): string
+    {
+        $raw = $this->getRawOriginal('submitted_at') ?? $this->attributes['submitted_at'] ?? null;
+        if (! $raw) {
+            return '-';
+        }
+
+        $rawClean = substr(str_replace(['T', 'Z'], [' ', ''], (string) $raw), 0, 19);
+
+        try {
+            return Carbon::createFromFormat('Y-m-d H:i:s', $rawClean, 'UTC')
+                ->setTimezone('Asia/Makassar')
+                ->format('H:i');
+        } catch (\Throwable $e) {
+            return '-';
+        }
+    }
 
     public function admin(): BelongsTo
     {
