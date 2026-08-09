@@ -96,7 +96,11 @@ Route::middleware(['auth'])->group(function () {
         'destroy' => 'admin.supir.destroy',
     ])->except(['show']);
 
-    // Laporan CRUD & Cetak
+    // Laporan CRUD, PDF Generator & Rekap Harian
+    Route::get('admin/laporan/pdf-form', [LaporanController::class, 'pdfForm'])->name('admin.laporan.pdf-form');
+    Route::get('admin/laporan/preview', [LaporanController::class, 'previewPdf'])->name('admin.laporan.preview');
+    Route::get('admin/laporan/download-pdf', [LaporanController::class, 'downloadPdf'])->name('admin.laporan.download-pdf');
+    Route::get('admin/laporan/detail/{tanggal}', [LaporanController::class, 'detailDate'])->name('admin.laporan.detail');
     Route::resource('admin/laporan', LaporanController::class)->names([
         'index' => 'admin.laporan.index',
         'create' => 'admin.laporan.create',

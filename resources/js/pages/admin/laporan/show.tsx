@@ -1,61 +1,79 @@
 import { Head, Link } from '@inertiajs/react';
-import { ArrowLeft, Bus, Download, Printer } from 'lucide-react';
+import { ArrowLeft, Bus, Printer } from 'lucide-react';
 
-interface LaporanItem {
+interface LaporanRecord {
     id_laporan: number;
-    tanggal_laporan: string;
-    periode_awal: string;
-    jenis_laporan: string;
-    file_pdf: string | null;
+    source_type: string;
+    source_trip_id: number | null;
+    submitted_at: string;
+    nama_po: string;
+    nomor_polisi: string;
+    asal: string;
+    tujuan: string;
+    nama_supir: string;
+    seat: number;
+    pnp: number;
+    naik: number;
+    turun: number;
+    akap_akdp: string;
     admin?: {
         nama_admin: string;
     };
 }
 
 interface ShowProps {
-    laporan: LaporanItem;
-    reportData: {
-        jadwals?: any[];
-        buses?: any[];
-        supirs?: any[];
-        poBuses?: any[];
+    tanggal: string;
+    formattedTanggal: string;
+    summary: {
+        total_perjalanan: number;
+        total_seat: number;
+        total_pnp: number;
+        total_naik: number;
+        total_turun: number;
+        total_akap: number;
+        total_akdp: number;
     };
+    laporans: LaporanRecord[];
 }
 
-export default function LaporanShow({ laporan, reportData }: ShowProps) {
+export default function LaporanShow({ tanggal, formattedTanggal, summary, laporans }: ShowProps) {
     const handlePrint = () => {
         window.print();
     };
 
+    const formatTimeOnly = (dateTimeStr: string) => {
+        if (!dateTimeStr) return '-';
+        try {
+            const dateObj = new Date(dateTimeStr);
+            if (isNaN(dateObj.getTime())) {
+                return dateTimeStr.slice(11, 16);
+            }
+            const hours = String(dateObj.getHours()).padStart(2, '0');
+            const minutes = String(dateObj.getMinutes()).padStart(2, '0');
+            return `${hours}:${minutes}`;
+        } catch {
+            return '-';
+        }
+    };
+
     return (
         <>
-            <Head title={`Laporan ${laporan.jenis_laporan} — Terminal Induk Parepare`} />
+            <Head title={`Cetak Laporan Harian ${formattedTanggal} — Terminal Induk Parepare`} />
 
             {/* Top Action Bar (hidden when printing) */}
             <div className="print:hidden bg-slate-900 text-white px-6 py-3 flex items-center justify-between shadow-md">
                 <Link
-                    href={route('admin.laporan.index')}
+                    href={route('admin.laporan.detail', tanggal)}
                     className="inline-flex items-center gap-2 text-sm font-medium text-slate-300 hover:text-white"
                 >
                     <ArrowLeft size={16} />
-                    Kembali ke Daftar Laporan
+                    Kembali ke Detail Laporan
                 </Link>
 
                 <div className="flex items-center gap-3">
-                    {laporan.file_pdf && (
-                        <a
-                            href={laporan.file_pdf}
-                            target="_blank"
-                            rel="noopener noreferrer"
-                            className="inline-flex items-center gap-1.5 px-4 py-1.5 rounded-full text-xs font-bold bg-amber-400 text-slate-950 hover:bg-amber-300"
-                        >
-                            <Download size={14} />
-                            Download PDF Terunggah
-                        </a>
-                    )}
                     <button
                         onClick={handlePrint}
-                        className="inline-flex items-center gap-1.5 px-4 py-1.5 rounded-full text-xs font-bold bg-blue-600 text-white hover:bg-blue-500"
+                        className="inline-flex items-center gap-1.5 px-4 py-1.5 rounded-full text-xs font-bold bg-blue-600 text-white hover:bg-blue-500 shadow-sm"
                     >
                         <Printer size={14} />
                         Cetak / Simpan PDF
@@ -66,23 +84,23 @@ export default function LaporanShow({ laporan, reportData }: ShowProps) {
             {/* Printable Document Canvas */}
             <div className="min-h-screen bg-slate-100 p-4 md:p-8 print:p-0 print:bg-white flex justify-center">
                 <div
-                    className="bg-white w-full max-w-4xl p-8 md:p-12 shadow-lg print:shadow-none print:w-full print:max-w-none rounded-2xl print:rounded-none"
+                    className="bg-white w-full max-w-5xl p-8 md:p-12 shadow-lg print:shadow-none print:w-full print:max-w-none rounded-2xl print:rounded-none"
                     style={{ fontFamily: "'Inter', sans-serif" }}
                 >
                     {/* Kop Surat / Header Resmi Terminal Induk Parepare */}
                     <div className="flex items-center justify-between border-b-4 border-slate-900 pb-4 mb-6">
                         <div className="flex items-center gap-4">
-                            <div className="h-16 w-16 bg-[#FFC627] rounded-2xl flex items-center justify-center shrink-0 border border-slate-900">
+                            <div className="h-16 w-16 bg-[#FFC627] rounded-2xl flex items-center justify-center shrink-0 border border-slate-900 print:border-black">
                                 <Bus size={36} color="#003B70" />
                             </div>
                             <div>
                                 <h1
-                                    className="text-2xl font-black uppercase tracking-tight text-slate-900 leading-tight"
+                                    className="text-xl md:text-2xl font-black uppercase tracking-tight text-slate-900 leading-tight"
                                     style={{ fontFamily: "'Bricolage Grotesque', sans-serif" }}
                                 >
                                     DINAS PERHUBUNGAN KOTA PAREPARE
                                 </h1>
-                                <h2 className="text-base font-bold text-[#003B70] tracking-wide">
+                                <h2 className="text-sm md:text-base font-bold text-[#003B70] tracking-wide">
                                     SISTEM INFORMASI TERMINAL INDUK PAREPARE
                                 </h2>
                                 <p className="text-xs text-slate-500">
@@ -95,164 +113,123 @@ export default function LaporanShow({ laporan, reportData }: ShowProps) {
                     {/* Judul Laporan */}
                     <div className="text-center mb-6">
                         <h3
-                            className="text-xl font-extrabold uppercase tracking-wide text-slate-900"
+                            className="text-lg md:text-xl font-extrabold uppercase tracking-wide text-slate-900"
                             style={{ fontFamily: "'Bricolage Grotesque', sans-serif" }}
                         >
-                            LAPORAN {laporan.jenis_laporan}
+                            LAPORAN HARIAN OPERASIONAL PERJALANAN BUS
                         </h3>
-                        <p className="text-xs font-mono text-slate-600 mt-1">
-                            Periode: {laporan.periode_awal?.slice(0, 10)} s/d {laporan.tanggal_laporan?.slice(0, 10)}
+                        <p className="text-xs font-bold text-slate-700 mt-1">
+                            Tanggal: {formattedTanggal}
                         </p>
                     </div>
 
-                    {/* Metadata Laporan */}
-                    <div className="grid grid-cols-2 text-xs mb-6 p-3 bg-slate-50 rounded-xl border border-slate-200">
+                    {/* Ringkasan Metadata / Stat Bar */}
+                    <div className="grid grid-cols-4 sm:grid-cols-7 gap-2 text-center text-xs mb-6 p-3 bg-slate-50 rounded-xl border border-slate-200 font-mono">
                         <div>
-                            <span className="text-slate-500">Nomor Dokumen: </span>
-                            <span className="font-mono font-bold text-slate-800">REP-{laporan.id_laporan.toString().padStart(4, '0')}</span>
+                            <span className="text-[10px] text-slate-500 block uppercase">Perjalanan</span>
+                            <strong className="text-slate-900">{summary.total_perjalanan}</strong>
                         </div>
-                        <div className="text-right">
-                            <span className="text-slate-500">Dibuat Oleh Admin: </span>
-                            <span className="font-bold text-slate-800">{laporan.admin?.nama_admin || 'System'}</span>
+                        <div>
+                            <span className="text-[10px] text-slate-500 block uppercase">Seat</span>
+                            <strong className="text-slate-900">{summary.total_seat}</strong>
+                        </div>
+                        <div>
+                            <span className="text-[10px] text-slate-500 block uppercase">PNP</span>
+                            <strong className="text-amber-800">{summary.total_pnp}</strong>
+                        </div>
+                        <div>
+                            <span className="text-[10px] text-slate-500 block uppercase">Naik</span>
+                            <strong className="text-emerald-800">{summary.total_naik}</strong>
+                        </div>
+                        <div>
+                            <span className="text-[10px] text-slate-500 block uppercase">Turun</span>
+                            <strong className="text-rose-800">{summary.total_turun}</strong>
+                        </div>
+                        <div>
+                            <span className="text-[10px] text-slate-500 block uppercase">AKAP</span>
+                            <strong className="text-cyan-800">{summary.total_akap}</strong>
+                        </div>
+                        <div>
+                            <span className="text-[10px] text-slate-500 block uppercase">AKDP</span>
+                            <strong className="text-amber-800">{summary.total_akdp}</strong>
                         </div>
                     </div>
 
-                    {/* Table Data Content based on Report Type */}
-                    <div className="mb-8">
-                        {laporan.jenis_laporan === 'Jadwal Keberangkatan Bus' && (
-                            <table className="w-full text-xs border-collapse border border-slate-300">
-                                <thead>
-                                    <tr className="bg-slate-100 text-slate-900 border-b border-slate-300">
-                                        <th className="border border-slate-300 px-2 py-2 text-left">Tanggal</th>
-                                        <th className="border border-slate-300 px-2 py-2 text-left">Armada Bus</th>
-                                        <th className="border border-slate-300 px-2 py-2 text-left">PO Bus</th>
-                                        <th className="border border-slate-300 px-2 py-2 text-left">Rute Trayek</th>
-                                        <th className="border border-slate-300 px-2 py-2 text-left">Supir</th>
-                                        <th className="border border-slate-300 px-2 py-2 text-center">Keberangkatan</th>
-                                        <th className="border border-slate-300 px-2 py-2 text-center">Status</th>
-                                    </tr>
-                                </thead>
-                                <tbody>
-                                    {reportData.jadwals && reportData.jadwals.length > 0 ? (
-                                        reportData.jadwals.map((j) => (
-                                            <tr key={j.id_jadwal} className="border-b border-slate-200">
-                                                <td className="border border-slate-300 px-2 py-1.5 font-mono">{j.tanggal?.slice(0, 10)}</td>
-                                                <td className="border border-slate-300 px-2 py-1.5 font-bold">{j.bus?.nama_bus} ({j.bus?.nomor_polisi})</td>
-                                                <td className="border border-slate-300 px-2 py-1.5">{j.bus?.po_bus?.nama_po}</td>
-                                                <td className="border border-slate-300 px-2 py-1.5">{j.rute?.asal} → {j.rute?.tujuan}</td>
-                                                <td className="border border-slate-300 px-2 py-1.5">{j.supir?.nama_supir || '-'}</td>
-                                                <td className="border border-slate-300 px-2 py-1.5 text-center font-mono">{j.jam_keberangkatan?.slice(0, 5)} WITA</td>
-                                                <td className="border border-slate-300 px-2 py-1.5 text-center font-bold capitalize">{j.status_bus}</td>
-                                            </tr>
-                                        ))
-                                    ) : (
-                                        <tr>
-                                            <td colSpan={7} className="text-center py-4 text-slate-500">Tidak ada data jadwal pada periode ini.</td>
+                    {/* Table Data Content */}
+                    <div className="mb-8 overflow-x-auto">
+                        <table className="w-full text-xs border-collapse border border-slate-300">
+                            <thead>
+                                <tr className="bg-slate-100 text-slate-900 border-b border-slate-300">
+                                    <th rowSpan={2} className="border border-slate-300 px-2 py-2 text-center w-8">No</th>
+                                    <th rowSpan={2} className="border border-slate-300 px-2 py-2 text-center">Waktu</th>
+                                    <th rowSpan={2} className="border border-slate-300 px-2 py-2 text-left">Nama PO</th>
+                                    <th rowSpan={2} className="border border-slate-300 px-2 py-2 text-left">No. Plat</th>
+                                    <th rowSpan={2} className="border border-slate-300 px-2 py-2 text-left">Asal</th>
+                                    <th rowSpan={2} className="border border-slate-300 px-2 py-2 text-left">Tujuan</th>
+                                    <th colSpan={2} className="border border-slate-300 px-2 py-1 text-center bg-slate-200">Lintas</th>
+                                    <th colSpan={2} className="border border-slate-300 px-2 py-1 text-center bg-slate-200">Penumpang</th>
+                                    <th rowSpan={2} className="border border-slate-300 px-2 py-2 text-left">Nama Supir</th>
+                                    <th rowSpan={2} className="border border-slate-300 px-2 py-2 text-center">Trayek</th>
+                                </tr>
+                                <tr className="bg-slate-100 text-slate-900 border-b border-slate-300">
+                                    <th className="border border-slate-300 px-1 py-1 text-center">Seat</th>
+                                    <th className="border border-slate-300 px-1 py-1 text-center">PNP</th>
+                                    <th className="border border-slate-300 px-1 py-1 text-center">Naik</th>
+                                    <th className="border border-slate-300 px-1 py-1 text-center">Turun</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {laporans && laporans.length > 0 ? (
+                                    laporans.map((r, idx) => (
+                                        <tr key={r.id_laporan} className="border-b border-slate-200">
+                                            <td className="border border-slate-300 px-2 py-1.5 text-center font-mono">{idx + 1}</td>
+                                            <td className="border border-slate-300 px-2 py-1.5 text-center font-mono font-bold">{formatTimeOnly(r.submitted_at)}</td>
+                                            <td className="border border-slate-300 px-2 py-1.5 font-bold">{r.nama_po}</td>
+                                            <td className="border border-slate-300 px-2 py-1.5 font-mono">{r.nomor_polisi}</td>
+                                            <td className="border border-slate-300 px-2 py-1.5">{r.asal}</td>
+                                            <td className="border border-slate-300 px-2 py-1.5">{r.tujuan}</td>
+                                            <td className="border border-slate-300 px-1 py-1.5 text-center font-mono">{r.seat}</td>
+                                            <td className="border border-slate-300 px-1 py-1.5 text-center font-mono font-bold">{r.pnp}</td>
+                                            <td className="border border-slate-300 px-1 py-1.5 text-center font-mono">{r.naik}</td>
+                                            <td className="border border-slate-300 px-1 py-1.5 text-center font-mono">{r.turun}</td>
+                                            <td className="border border-slate-300 px-2 py-1.5">{r.nama_supir}</td>
+                                            <td className="border border-slate-300 px-2 py-1.5 text-center font-bold">{r.akap_akdp}</td>
                                         </tr>
-                                    )}
-                                </tbody>
-                            </table>
-                        )}
-
-                        {laporan.jenis_laporan === 'Daftar Armada Bus' && (
-                            <table className="w-full text-xs border-collapse border border-slate-300">
-                                <thead>
-                                    <tr className="bg-slate-100 text-slate-900 border-b border-slate-300">
-                                        <th className="border border-slate-300 px-3 py-2 text-left">Nama Armada</th>
-                                        <th className="border border-slate-300 px-3 py-2 text-left">Nomor Polisi (Plat)</th>
-                                        <th className="border border-slate-300 px-3 py-2 text-left">Perusahaan Otobus (PO)</th>
+                                    ))
+                                ) : (
+                                    <tr>
+                                        <td colSpan={12} className="text-center py-4 text-slate-500">Tidak ada record laporan pada tanggal ini.</td>
                                     </tr>
-                                </thead>
-                                <tbody>
-                                    {reportData.buses && reportData.buses.length > 0 ? (
-                                        reportData.buses.map((b) => (
-                                            <tr key={b.id_bus} className="border-b border-slate-200">
-                                                <td className="border border-slate-300 px-3 py-2 font-bold">{b.nama_bus}</td>
-                                                <td className="border border-slate-300 px-3 py-2 font-mono font-semibold">{b.nomor_polisi}</td>
-                                                <td className="border border-slate-300 px-3 py-2">{b.po_bus?.nama_po || '-'}</td>
-                                            </tr>
-                                        ))
-                                    ) : (
-                                        <tr>
-                                            <td colSpan={3} className="text-center py-4 text-slate-500">Tidak ada data armada bus.</td>
-                                        </tr>
-                                    )}
-                                </tbody>
-                            </table>
-                        )}
-
-                        {laporan.jenis_laporan === 'Aktivitas & Data Supir' && (
-                            <table className="w-full text-xs border-collapse border border-slate-300">
-                                <thead>
-                                    <tr className="bg-slate-100 text-slate-900 border-b border-slate-300">
-                                        <th className="border border-slate-300 px-3 py-2 text-left">Nama Supir</th>
-                                        <th className="border border-slate-300 px-3 py-2 text-left">Nomor Telepon</th>
-                                        <th className="border border-slate-300 px-3 py-2 text-left">Username</th>
-                                        <th className="border border-slate-300 px-3 py-2 text-center">Total Penugasan Jadwal</th>
-                                    </tr>
-                                </thead>
-                                <tbody>
-                                    {reportData.supirs && reportData.supirs.length > 0 ? (
-                                        reportData.supirs.map((s) => (
-                                            <tr key={s.id_supir} className="border-b border-slate-200">
-                                                <td className="border border-slate-300 px-3 py-2 font-bold">{s.nama_supir}</td>
-                                                <td className="border border-slate-300 px-3 py-2 font-mono">{s.no_telp}</td>
-                                                <td className="border border-slate-300 px-3 py-2">{s.username}</td>
-                                                <td className="border border-slate-300 px-3 py-2 text-center font-bold">{s.jadwals_count ?? 0} Kali</td>
-                                            </tr>
-                                        ))
-                                    ) : (
-                                        <tr>
-                                            <td colSpan={4} className="text-center py-4 text-slate-500">Tidak ada data supir.</td>
-                                        </tr>
-                                    )}
-                                </tbody>
-                            </table>
-                        )}
-
-                        {laporan.jenis_laporan === 'Data Perusahaan Otobus (PO)' && (
-                            <table className="w-full text-xs border-collapse border border-slate-300">
-                                <thead>
-                                    <tr className="bg-slate-100 text-slate-900 border-b border-slate-300">
-                                        <th className="border border-slate-300 px-3 py-2 text-left">Nama PO Bus</th>
-                                        <th className="border border-slate-300 px-3 py-2 text-left">Alamat Perusahaan</th>
-                                        <th className="border border-slate-300 px-3 py-2 text-left">No. Telepon</th>
-                                        <th className="border border-slate-300 px-3 py-2 text-center">Jumlah Bus</th>
-                                    </tr>
-                                </thead>
-                                <tbody>
-                                    {reportData.poBuses && reportData.poBuses.length > 0 ? (
-                                        reportData.poBuses.map((po) => (
-                                            <tr key={po.id_po} className="border-b border-slate-200">
-                                                <td className="border border-slate-300 px-3 py-2 font-bold">{po.nama_po}</td>
-                                                <td className="border border-slate-300 px-3 py-2">{po.alamat_po}</td>
-                                                <td className="border border-slate-300 px-3 py-2 font-mono">{po.no_telp_po}</td>
-                                                <td className="border border-slate-300 px-3 py-2 text-center font-bold">{po.buses_count ?? 0} Armada</td>
-                                            </tr>
-                                        ))
-                                    ) : (
-                                        <tr>
-                                            <td colSpan={4} className="text-center py-4 text-slate-500">Tidak ada data PO bus.</td>
-                                        </tr>
-                                    )}
-                                </tbody>
-                            </table>
-                        )}
+                                )}
+                            </tbody>
+                            <tfoot>
+                                <tr className="bg-slate-100 font-bold border-t-2 border-slate-400 text-slate-900">
+                                    <td colSpan={6} className="border border-slate-300 px-2 py-2 text-right uppercase">TOTAL</td>
+                                    <td className="border border-slate-300 px-1 py-2 text-center font-mono">{summary.total_seat}</td>
+                                    <td className="border border-slate-300 px-1 py-2 text-center font-mono">{summary.total_pnp}</td>
+                                    <td className="border border-slate-300 px-1 py-2 text-center font-mono">{summary.total_naik}</td>
+                                    <td className="border border-slate-300 px-1 py-2 text-center font-mono">{summary.total_turun}</td>
+                                    <td colSpan={2} className="border border-slate-300 px-2 py-2 text-xs">
+                                        AKAP: {summary.total_akap} | AKDP: {summary.total_akdp}
+                                    </td>
+                                </tr>
+                            </tfoot>
+                        </table>
                     </div>
 
                     {/* Signature / Pengesahan Block */}
-                    <div className="flex justify-between items-end mt-12 text-xs pt-8 border-t border-slate-200">
+                    <div className="flex justify-between items-end mt-12 text-xs pt-8 border-t border-slate-200 print:break-inside-avoid">
                         <div>
                             <p className="text-slate-500">Catatan:</p>
                             <p className="text-[11px] text-slate-400 italic max-w-xs">
-                                Dokumen ini diterbitkan secara resmi oleh Sistem Informasi Terminal Induk Parepare dan sah digunakan sebagai laporan operasional.
+                                Dokumen ini diterbitkan secara resmi oleh Sistem Informasi Terminal Induk Parepare dan sah digunakan sebagai laporan operasional harian.
                             </p>
                         </div>
                         <div className="text-center">
-                            <p className="text-slate-600 mb-1">Parepare, {new Date().toLocaleDateString('id-ID', { day: 'numeric', month: 'long', year: 'numeric' })}</p>
+                            <p className="text-slate-600 mb-1">Parepare, {formattedTanggal}</p>
                             <p className="font-bold text-slate-900 mb-12">Kepala Terminal Induk Parepare</p>
                             <p className="font-bold text-slate-900 border-b border-slate-800 pb-0.5 inline-block">
-                                {laporan.admin?.nama_admin || 'Super Admin'}
+                                Syamsuddin, S.STP
                             </p>
                             <p className="text-[10px] text-slate-500 font-mono">NIP. 19850412 201012 1 004</p>
                         </div>

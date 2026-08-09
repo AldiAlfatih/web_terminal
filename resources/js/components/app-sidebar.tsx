@@ -39,7 +39,7 @@ const mainNavItems: NavItem[] = [
         icon: LayoutGrid,
     },
     {
-        title: 'Laporan PDF',
+        title: 'Laporan',
         url: '/admin/laporan',
         icon: FileText,
     },
