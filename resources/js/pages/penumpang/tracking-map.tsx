@@ -1,7 +1,7 @@
 import { echo } from '@/echo';
 import { Head, Link } from '@inertiajs/react';
 import { ArrowLeft, ArrowRight, Bus, Clock, Compass, MapPin, Navigation, Radio } from 'lucide-react';
-import { useEffect, useState } from 'react';
+import { useEffect, useMemo, useRef, useState } from 'react';
 
 interface JadwalProps {
     id_jadwal: number;
@@ -50,6 +50,70 @@ export default function PassengerTrackingMap({ jadwal }: TrackingMapPageProps) {
             : null,
     });
 
+    // ─── ETA & Duration Calculations ───
+    const [nowTime, setNowTime] = useState<Date>(new Date());
+
+    // Update clock every second for live countdown
+    useEffect(() => {
+        const timer = setInterval(() => setNowTime(new Date()), 1000);
+        return () => clearInterval(timer);
+    }, []);
+
+    // Parse "HH:MM:SS" time string into today's Date object
+    const parseTimeToDate = (timeStr: string | null): Date | null => {
+        if (!timeStr) return null;
+        const [h, m, s] = timeStr.split(':').map(Number);
+        const d = new Date();
+        d.setHours(h, m, s || 0, 0);
+        return d;
+    };
+
+    // Calculate minutes remaining until arrival
+    const getEtaMinutes = (): number | null => {
+        const arrival = parseTimeToDate(jadwal.jam_kedatangan);
+        if (!arrival) return null;
+        const diffMs = arrival.getTime() - nowTime.getTime();
+        return Math.round(diffMs / 60000);
+    };
+
+    // Format ETA minutes into human-readable string
+    const formatEta = (): string => {
+        if (statusBus === 'selesai') return '✓ Selesai';
+        if (statusBus === 'menunggu') return 'Belum Berangkat';
+        const mins = getEtaMinutes();
+        if (mins === null) return '—';
+        if (mins < 0) return 'Melebihi Jadwal';
+        if (mins === 0) return 'Hampir Tiba!';
+        const h = Math.floor(mins / 60);
+        const m = mins % 60;
+        if (h > 0) return `${h} jam ${m} mnt lagi`;
+        return `${m} menit lagi`;
+    };
+
+    // Calculate total planned journey duration
+    const getTotalDuration = (): string => {
+        const dep = parseTimeToDate(jadwal.jam_keberangkatan);
+        const arr = parseTimeToDate(jadwal.jam_kedatangan);
+        if (!dep || !arr) return '—';
+        const diffMs = arr.getTime() - dep.getTime();
+        const totalMins = Math.round(diffMs / 60000);
+        if (totalMins <= 0) return '—';
+        const h = Math.floor(totalMins / 60);
+        const m = totalMins % 60;
+        if (h > 0) return `${h} jam ${m} mnt`;
+        return `${m} menit`;
+    };
+
+    // ETA countdown color
+    const getEtaColor = (): string => {
+        if (statusBus === 'selesai') return '#16a34a';
+        if (statusBus === 'menunggu') return '#6b7280';
+        const mins = getEtaMinutes();
+        if (mins === null || mins < 0) return '#dc2626';
+        if (mins <= 10) return '#d97706';
+        return '#1d4ed8';
+    };
+
     const [statusBus, setStatusBus] = useState<'menunggu' | 'berangkat' | 'selesai'>(jadwal.status_bus);
     const [isLiveConnected, setIsLiveConnected] = useState<boolean>(false);
     const [leafletLoaded, setLeafletLoaded] = useState<boolean>(false);
@@ -79,13 +143,18 @@ export default function PassengerTrackingMap({ jadwal }: TrackingMapPageProps) {
         });
     }, []);
 
-    // Helper component to smoothly center map on bus location update
+    // Helper component to smoothly center map ONLY when coordinates actually change
     const MapRecenter = ({ lat, lng }: { lat: number; lng: number }) => {
         const map = LeafletComponents?.useMap();
+        const prevLatRef = useRef<number | null>(null);
+        const prevLngRef = useRef<number | null>(null);
         useEffect(() => {
-            if (map && lat && lng) {
-                map.flyTo([lat, lng], map.getZoom(), { animate: true, duration: 1 });
-            }
+            if (!map || !lat || !lng) return;
+            // Only fly if coordinates actually changed — prevents shaking from 1-sec timer re-renders
+            if (lat === prevLatRef.current && lng === prevLngRef.current) return;
+            prevLatRef.current = lat;
+            prevLngRef.current = lng;
+            map.flyTo([lat, lng], map.getZoom(), { animate: true, duration: 1.5 });
         }, [lat, lng, map]);
         return null;
     };
@@ -119,14 +188,13 @@ export default function PassengerTrackingMap({ jadwal }: TrackingMapPageProps) {
         };
     }, [jadwal.id_jadwal]);
 
-    // Create custom DAMRI Bus Vector Graphic Marker icon for Leaflet
-    const createDamriMarkerIcon = () => {
+    // Memoized icon — only re-creates when heading or nomor_polisi changes (NOT every second from the timer)
+    const busMarkerIcon = useMemo(() => {
         if (!LeafletComponents?.L) return null;
 
         const L = LeafletComponents.L;
         const rotateDeg = busLocation.heading ? Math.round(busLocation.heading) : 0;
 
-        // Custom detailed DAMRI Bus Vector Illustration SVG (No browser emoji!)
         const busSvgGraphic = `
             <svg width="44" height="44" viewBox="0 0 64 64" fill="none" xmlns="http://www.w3.org/2000/svg">
                 <!-- Bus Body Background Shield -->
@@ -154,66 +222,14 @@ export default function PassengerTrackingMap({ jadwal }: TrackingMapPageProps) {
         `;
 
         const htmlIcon = `
-            <div style="
-                display: flex;
-                flex-direction: column;
-                align-items: center;
-                transform: translate(-50%, -100%);
-                cursor: pointer;
-            ">
-                <!-- Outer Animated Pulse Ring -->
-                <div style="
-                    position: relative;
-                    width: 58px;
-                    height: 58px;
-                    display: flex;
-                    align-items: center;
-                    justify-content: center;
-                ">
-                    <!-- Beacon Radar Pulse -->
-                    <div style="
-                        position: absolute;
-                        inset: -4px;
-                        border-radius: 9999px;
-                        background-color: rgba(255, 198, 39, 0.45);
-                        border: 2px solid #FFC627;
-                        animation: ping 1.8s cubic-bezier(0, 0, 0.2, 1) infinite;
-                    "></div>
-
-                    <!-- Bus Graphic Pin Badge -->
-                    <div style="
-                        position: relative;
-                        width: 54px;
-                        height: 54px;
-                        border-radius: 9999px;
-                        background-color: #003B70;
-                        border: 3px solid #FFC627;
-                        display: flex;
-                        align-items: center;
-                        justify-content: center;
-                        box-shadow: 0 8px 20px rgba(0, 26, 51, 0.5);
-                        transform: rotate(${rotateDeg}deg);
-                        transition: transform 0.4s ease;
-                    ">
+            <div style="display: flex; flex-direction: column; align-items: center; cursor: pointer;">
+                <div style="position: relative; width: 58px; height: 58px; display: flex; align-items: center; justify-content: center;">
+                    <div style="position: absolute; inset: -4px; border-radius: 9999px; background-color: rgba(255, 198, 39, 0.45); border: 2px solid #FFC627; animation: ping 1.8s cubic-bezier(0, 0, 0.2, 1) infinite;"></div>
+                    <div style="position: relative; width: 54px; height: 54px; border-radius: 9999px; background-color: #003B70; border: 3px solid #FFC627; display: flex; align-items: center; justify-content: center; box-shadow: 0 8px 20px rgba(0, 26, 51, 0.5); transform: rotate(${rotateDeg}deg); transition: transform 0.4s ease;">
                         ${busSvgGraphic}
                     </div>
                 </div>
-
-                <!-- License Plate Tag below the Bus Graphic -->
-                <div style="
-                    margin-top: 4px;
-                    background-color: #001A33;
-                    color: #FFC627;
-                    border: 1px solid #FFC627;
-                    border-radius: 9999px;
-                    padding: 3px 10px;
-                    font-family: 'JetBrains Mono', monospace;
-                    font-weight: 800;
-                    font-size: 10px;
-                    letter-spacing: 0.05em;
-                    box-shadow: 0 3px 10px rgba(0, 0, 0, 0.4);
-                    white-space: nowrap;
-                ">
+                <div style="margin-top: 4px; background-color: #001A33; color: #FFC627; border: 1px solid #FFC627; border-radius: 9999px; padding: 3px 10px; font-family: 'JetBrains Mono', monospace; font-weight: 800; font-size: 10px; letter-spacing: 0.05em; box-shadow: 0 3px 10px rgba(0, 0, 0, 0.4); white-space: nowrap;">
                     ${jadwal.bus?.nomor_polisi || 'BUS DAMRI'}
                 </div>
             </div>
@@ -225,7 +241,8 @@ export default function PassengerTrackingMap({ jadwal }: TrackingMapPageProps) {
             iconSize: [60, 90],
             iconAnchor: [30, 85],
         });
-    };
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+    }, [LeafletComponents?.L, busLocation.heading, jadwal.bus?.nomor_polisi]);
 
     return (
         <>
@@ -324,45 +341,58 @@ export default function PassengerTrackingMap({ jadwal }: TrackingMapPageProps) {
                         </div>
                     </div>
 
-                    {/* Telemetry Summary Bar */}
-                    <div className="grid grid-cols-2 gap-3 sm:grid-cols-4">
-                        <div
-                            className="p-3.5 text-center"
-                            style={{ backgroundColor: '#ffffff', border: '1px solid #d4cfc6', borderRadius: '12px' }}
-                        >
-                            <p className="text-[10px] font-semibold uppercase text-gray-500">Jam Keberangkatan</p>
+                    {/* ─── Telemetry & ETA Info Bar ─── */}
+                    <div className="grid grid-cols-2 gap-3 sm:grid-cols-3 lg:grid-cols-6">
+
+                        {/* Card 1: Keberangkatan */}
+                        <div className="p-3.5 text-center" style={{ backgroundColor: '#ffffff', border: '1px solid #d4cfc6', borderRadius: '12px' }}>
+                            <p className="text-[10px] font-semibold uppercase text-gray-500">🕐 Berangkat</p>
                             <p className="font-mono text-sm font-bold text-blue-950 mt-0.5">{jadwal.jam_keberangkatan?.slice(0, 5)} WITA</p>
                         </div>
 
+                        {/* Card 2: Jadwal Tiba */}
+                        <div className="p-3.5 text-center" style={{ backgroundColor: '#ffffff', border: '1px solid #d4cfc6', borderRadius: '12px' }}>
+                            <p className="text-[10px] font-semibold uppercase text-gray-500">🏁 Tiba (Jadwal)</p>
+                            <p className="font-mono text-sm font-bold text-blue-950 mt-0.5">{jadwal.jam_kedatangan?.slice(0, 5)} WITA</p>
+                        </div>
+
+                        {/* Card 3: Total Durasi */}
+                        <div className="p-3.5 text-center" style={{ backgroundColor: '#ffffff', border: '1px solid #d4cfc6', borderRadius: '12px' }}>
+                            <p className="text-[10px] font-semibold uppercase text-gray-500">⏱ Total Perjalanan</p>
+                            <p className="font-mono text-sm font-bold text-purple-700 mt-0.5">{getTotalDuration()}</p>
+                        </div>
+
+                        {/* Card 4: ETA (Live Countdown) */}
                         <div
-                            className="p-3.5 text-center"
-                            style={{ backgroundColor: '#ffffff', border: '1px solid #d4cfc6', borderRadius: '12px' }}
+                            className="col-span-2 sm:col-span-1 p-3.5 text-center"
+                            style={{
+                                backgroundColor: statusBus === 'berangkat' ? '#eff6ff' : '#ffffff',
+                                border: `1px solid ${statusBus === 'berangkat' ? '#bfdbfe' : '#d4cfc6'}`,
+                                borderRadius: '12px',
+                            }}
                         >
-                            <p className="text-[10px] font-semibold uppercase text-gray-500">Kecepatan Bus</p>
+                            <p className="text-[10px] font-semibold uppercase text-gray-500">⏳ Perkiraan Tiba</p>
+                            <p className="font-mono text-sm font-bold mt-0.5" style={{ color: getEtaColor() }}>
+                                {formatEta()}
+                            </p>
+                        </div>
+
+                        {/* Card 5: Kecepatan Live */}
+                        <div className="p-3.5 text-center" style={{ backgroundColor: '#ffffff', border: '1px solid #d4cfc6', borderRadius: '12px' }}>
+                            <p className="text-[10px] font-semibold uppercase text-gray-500">🚀 Kecepatan</p>
                             <p className="font-mono text-sm font-bold text-amber-600 mt-0.5">
-                                {busLocation.speed !== null ? `${busLocation.speed} km/jam` : '0 km/jam'}
+                                {busLocation.speed !== null ? `${Math.round(busLocation.speed)} km/jam` : '0 km/jam'}
                             </p>
                         </div>
 
-                        <div
-                            className="p-3.5 text-center"
-                            style={{ backgroundColor: '#ffffff', border: '1px solid #d4cfc6', borderRadius: '12px' }}
-                        >
-                            <p className="text-[10px] font-semibold uppercase text-gray-500">Update Terakhir</p>
+                        {/* Card 6: Update Terakhir */}
+                        <div className="p-3.5 text-center" style={{ backgroundColor: '#ffffff', border: '1px solid #d4cfc6', borderRadius: '12px' }}>
+                            <p className="text-[10px] font-semibold uppercase text-gray-500">📡 Update GPS</p>
                             <p className="font-mono text-sm font-bold text-emerald-700 mt-0.5">
-                                {busLocation.updatedAt || 'Menunggu sinyal...'}
+                                {busLocation.updatedAt || '—'}
                             </p>
                         </div>
 
-                        <div
-                            className="p-3.5 text-center"
-                            style={{ backgroundColor: '#ffffff', border: '1px solid #d4cfc6', borderRadius: '12px' }}
-                        >
-                            <p className="text-[10px] font-semibold uppercase text-gray-500">Status Lacak</p>
-                            <p className="font-mono text-sm font-bold text-blue-900 mt-0.5">
-                                {statusBus === 'berangkat' ? 'Live GPS' : 'Standby'}
-                            </p>
-                        </div>
                     </div>
 
                     {/* ─── Map Container ─── */}
@@ -390,11 +420,11 @@ export default function PassengerTrackingMap({ jadwal }: TrackingMapPageProps) {
                                     url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
                                 />
 
-                                {/* Custom DAMRI Bus Marker */}
-                                {createDamriMarkerIcon() && (
+                                {/* Custom DAMRI Bus Marker — uses memoized icon to prevent flicker */}
+                                {busMarkerIcon && (
                                     <LeafletComponents.Marker
                                         position={[busLocation.lat, busLocation.lng]}
-                                        icon={createDamriMarkerIcon()}
+                                        icon={busMarkerIcon}
                                     >
                                         <LeafletComponents.Popup>
                                             <div className="p-1 text-center font-sans text-xs">

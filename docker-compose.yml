@@ -1,0 +1,23 @@
+# Docker Compose — MySQL Only untuk Terminal Parepare
+# Hanya menjalankan MySQL. PHP/Laravel tetap dijalankan langsung (php artisan serve)
+# Data MySQL disimpan di D:\docker-data\mysql agar drive C tidak penuh.
+
+services:
+  mysql:
+    image: mysql:8.0
+    container_name: terminal_parepare_mysql
+    restart: unless-stopped
+    environment:
+      MYSQL_ROOT_PASSWORD: root
+      MYSQL_DATABASE: terminal_parepare
+      MYSQL_USER: terminal_user
+      MYSQL_PASSWORD: terminal_pass
+    ports:
+      - "3306:3306"
+    volumes:
+      # Data tersimpan di D:\docker-data\mysql (bukan di drive C)
+      - D:/docker-data/mysql:/var/lib/mysql
+    command: >
+      --character-set-server=utf8mb4
+      --collation-server=utf8mb4_unicode_ci
+      --innodb-buffer-pool-size=256M
