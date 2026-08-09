@@ -1,5 +1,6 @@
 import { Head, Link } from '@inertiajs/react';
 import { ArrowLeft, Bus, Download } from 'lucide-react';
+import { useState } from 'react';
 
 interface LaporanRecord {
     id_laporan: number;
