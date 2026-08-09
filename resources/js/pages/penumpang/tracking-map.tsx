@@ -1,7 +1,7 @@
 import { echo } from '@/echo';
 import { Head, Link } from '@inertiajs/react';
 import { ArrowLeft, ArrowRight, Bus, Clock, Compass, MapPin, Navigation, Radio } from 'lucide-react';
-import { useEffect, useState } from 'react';
+import { useEffect, useMemo, useRef, useState } from 'react';
 
 interface JadwalProps {
     id_jadwal: number;
@@ -143,13 +143,18 @@ export default function PassengerTrackingMap({ jadwal }: TrackingMapPageProps) {
         });
     }, []);
 
-    // Helper component to smoothly center map on bus location update
+    // Helper component to smoothly center map ONLY when coordinates actually change
     const MapRecenter = ({ lat, lng }: { lat: number; lng: number }) => {
         const map = LeafletComponents?.useMap();
+        const prevLatRef = useRef<number | null>(null);
+        const prevLngRef = useRef<number | null>(null);
         useEffect(() => {
-            if (map && lat && lng) {
-                map.flyTo([lat, lng], map.getZoom(), { animate: true, duration: 1 });
-            }
+            if (!map || !lat || !lng) return;
+            // Only fly if coordinates actually changed — prevents shaking from 1-sec timer re-renders
+            if (lat === prevLatRef.current && lng === prevLngRef.current) return;
+            prevLatRef.current = lat;
+            prevLngRef.current = lng;
+            map.flyTo([lat, lng], map.getZoom(), { animate: true, duration: 1.5 });
         }, [lat, lng, map]);
         return null;
     };
@@ -183,14 +188,13 @@ export default function PassengerTrackingMap({ jadwal }: TrackingMapPageProps) {
         };
     }, [jadwal.id_jadwal]);
 
-    // Create custom DAMRI Bus Vector Graphic Marker icon for Leaflet
-    const createDamriMarkerIcon = () => {
+    // Memoized icon — only re-creates when heading or nomor_polisi changes (NOT every second from the timer)
+    const busMarkerIcon = useMemo(() => {
         if (!LeafletComponents?.L) return null;
 
         const L = LeafletComponents.L;
         const rotateDeg = busLocation.heading ? Math.round(busLocation.heading) : 0;
 
-        // Custom detailed DAMRI Bus Vector Illustration SVG (No browser emoji!)
         const busSvgGraphic = `
             <svg width="44" height="44" viewBox="0 0 64 64" fill="none" xmlns="http://www.w3.org/2000/svg">
                 <!-- Bus Body Background Shield -->
@@ -218,65 +222,14 @@ export default function PassengerTrackingMap({ jadwal }: TrackingMapPageProps) {
         `;
 
         const htmlIcon = `
-            <div style="
-                display: flex;
-                flex-direction: column;
-                align-items: center;
-                cursor: pointer;
-            ">
-                <!-- Outer Animated Pulse Ring -->
-                <div style="
-                    position: relative;
-                    width: 58px;
-                    height: 58px;
-                    display: flex;
-                    align-items: center;
-                    justify-content: center;
-                ">
-                    <!-- Beacon Radar Pulse -->
-                    <div style="
-                        position: absolute;
-                        inset: -4px;
-                        border-radius: 9999px;
-                        background-color: rgba(255, 198, 39, 0.45);
-                        border: 2px solid #FFC627;
-                        animation: ping 1.8s cubic-bezier(0, 0, 0.2, 1) infinite;
-                    "></div>
-
-                    <!-- Bus Graphic Pin Badge -->
-                    <div style="
-                        position: relative;
-                        width: 54px;
-                        height: 54px;
-                        border-radius: 9999px;
-                        background-color: #003B70;
-                        border: 3px solid #FFC627;
-                        display: flex;
-                        align-items: center;
-                        justify-content: center;
-                        box-shadow: 0 8px 20px rgba(0, 26, 51, 0.5);
-                        transform: rotate(${rotateDeg}deg);
-                        transition: transform 0.4s ease;
-                    ">
+            <div style="display: flex; flex-direction: column; align-items: center; cursor: pointer;">
+                <div style="position: relative; width: 58px; height: 58px; display: flex; align-items: center; justify-content: center;">
+                    <div style="position: absolute; inset: -4px; border-radius: 9999px; background-color: rgba(255, 198, 39, 0.45); border: 2px solid #FFC627; animation: ping 1.8s cubic-bezier(0, 0, 0.2, 1) infinite;"></div>
+                    <div style="position: relative; width: 54px; height: 54px; border-radius: 9999px; background-color: #003B70; border: 3px solid #FFC627; display: flex; align-items: center; justify-content: center; box-shadow: 0 8px 20px rgba(0, 26, 51, 0.5); transform: rotate(${rotateDeg}deg); transition: transform 0.4s ease;">
                         ${busSvgGraphic}
                     </div>
                 </div>
-
-                <!-- License Plate Tag below the Bus Graphic -->
-                <div style="
-                    margin-top: 4px;
-                    background-color: #001A33;
-                    color: #FFC627;
-                    border: 1px solid #FFC627;
-                    border-radius: 9999px;
-                    padding: 3px 10px;
-                    font-family: 'JetBrains Mono', monospace;
-                    font-weight: 800;
-                    font-size: 10px;
-                    letter-spacing: 0.05em;
-                    box-shadow: 0 3px 10px rgba(0, 0, 0, 0.4);
-                    white-space: nowrap;
-                ">
+                <div style="margin-top: 4px; background-color: #001A33; color: #FFC627; border: 1px solid #FFC627; border-radius: 9999px; padding: 3px 10px; font-family: 'JetBrains Mono', monospace; font-weight: 800; font-size: 10px; letter-spacing: 0.05em; box-shadow: 0 3px 10px rgba(0, 0, 0, 0.4); white-space: nowrap;">
                     ${jadwal.bus?.nomor_polisi || 'BUS DAMRI'}
                 </div>
             </div>
@@ -288,7 +241,8 @@ export default function PassengerTrackingMap({ jadwal }: TrackingMapPageProps) {
             iconSize: [60, 90],
             iconAnchor: [30, 85],
         });
-    };
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+    }, [LeafletComponents?.L, busLocation.heading, jadwal.bus?.nomor_polisi]);
 
     return (
         <>
@@ -466,11 +420,11 @@ export default function PassengerTrackingMap({ jadwal }: TrackingMapPageProps) {
                                     url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
                                 />
 
-                                {/* Custom DAMRI Bus Marker */}
-                                {createDamriMarkerIcon() && (
+                                {/* Custom DAMRI Bus Marker — uses memoized icon to prevent flicker */}
+                                {busMarkerIcon && (
                                     <LeafletComponents.Marker
                                         position={[busLocation.lat, busLocation.lng]}
-                                        icon={createDamriMarkerIcon()}
+                                        icon={busMarkerIcon}
                                     >
                                         <LeafletComponents.Popup>
                                             <div className="p-1 text-center font-sans text-xs">
