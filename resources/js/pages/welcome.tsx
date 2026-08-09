@@ -157,10 +157,7 @@ export default function Welcome({ jadwals = [], search = '' }: WelcomeProps) {
 
                     <div className="relative mx-auto max-w-4xl text-center flex flex-col items-center">
                         {/* Live Status Badge */}
-                        <div className="inline-flex items-center gap-2 rounded-full bg-amber-400/10 px-4 py-1.5 text-xs font-bold text-amber-400 border border-amber-400/30 backdrop-blur-sm mb-6 animate-fade-in">
-                            <Sparkles size={14} className="animate-spin-slow text-amber-400" />
-                            <span>Pusat Pelacakan Real-Time Bus Sulawesi Selatan</span>
-                        </div>
+
 
                         {/* Title */}
                         <h2
@@ -254,42 +251,38 @@ export default function Welcome({ jadwals = [], search = '' }: WelcomeProps) {
                                 <div className="flex items-center rounded-xl bg-slate-100 p-1 border border-slate-200 text-xs font-semibold text-slate-600">
                                     <button
                                         onClick={() => setStatusFilter('all')}
-                                        className={`px-3 py-1.5 rounded-lg transition-all ${
-                                            statusFilter === 'all'
+                                        className={`px-3 py-1.5 rounded-lg transition-all ${statusFilter === 'all'
                                                 ? 'bg-white text-slate-900 shadow-sm font-bold'
                                                 : 'hover:text-slate-900'
-                                        }`}
+                                            }`}
                                     >
                                         Semua ({stats.total})
                                     </button>
                                     <button
                                         onClick={() => setStatusFilter('berangkat')}
-                                        className={`px-3 py-1.5 rounded-lg transition-all flex items-center gap-1.5 ${
-                                            statusFilter === 'berangkat'
+                                        className={`px-3 py-1.5 rounded-lg transition-all flex items-center gap-1.5 ${statusFilter === 'berangkat'
                                                 ? 'bg-emerald-600 text-white shadow-sm font-bold'
                                                 : 'hover:text-emerald-700'
-                                        }`}
+                                            }`}
                                     >
                                         <span className="h-1.5 w-1.5 rounded-full bg-white animate-pulse"></span>
                                         Di Jalan ({stats.enRoute})
                                     </button>
                                     <button
                                         onClick={() => setStatusFilter('menunggu')}
-                                        className={`px-3 py-1.5 rounded-lg transition-all ${
-                                            statusFilter === 'menunggu'
+                                        className={`px-3 py-1.5 rounded-lg transition-all ${statusFilter === 'menunggu'
                                                 ? 'bg-amber-400 text-slate-950 shadow-sm font-bold'
                                                 : 'hover:text-amber-700'
-                                        }`}
+                                            }`}
                                     >
                                         Menunggu ({stats.waiting})
                                     </button>
                                     <button
                                         onClick={() => setStatusFilter('selesai')}
-                                        className={`px-3 py-1.5 rounded-lg transition-all ${
-                                            statusFilter === 'selesai'
+                                        className={`px-3 py-1.5 rounded-lg transition-all ${statusFilter === 'selesai'
                                                 ? 'bg-slate-800 text-white shadow-sm font-bold'
                                                 : 'hover:text-slate-900'
-                                        }`}
+                                            }`}
                                     >
                                         Selesai ({stats.finished})
                                     </button>
@@ -299,18 +292,16 @@ export default function Welcome({ jadwals = [], search = '' }: WelcomeProps) {
                                 <div className="hidden sm:flex items-center rounded-xl bg-slate-100 p-1 border border-slate-200">
                                     <button
                                         onClick={() => setViewMode('grid')}
-                                        className={`p-1.5 rounded-lg transition-colors ${
-                                            viewMode === 'grid' ? 'bg-white text-slate-900 shadow-sm' : 'text-slate-400 hover:text-slate-700'
-                                        }`}
+                                        className={`p-1.5 rounded-lg transition-colors ${viewMode === 'grid' ? 'bg-white text-slate-900 shadow-sm' : 'text-slate-400 hover:text-slate-700'
+                                            }`}
                                         title="Tampilan Kartu"
                                     >
                                         <Grid size={16} />
                                     </button>
                                     <button
                                         onClick={() => setViewMode('table')}
-                                        className={`p-1.5 rounded-lg transition-colors ${
-                                            viewMode === 'table' ? 'bg-white text-slate-900 shadow-sm' : 'text-slate-400 hover:text-slate-700'
-                                        }`}
+                                        className={`p-1.5 rounded-lg transition-colors ${viewMode === 'table' ? 'bg-white text-slate-900 shadow-sm' : 'text-slate-400 hover:text-slate-700'
+                                            }`}
                                         title="Tampilan Tabel"
                                     >
                                         <ListFilter size={16} />
@@ -327,11 +318,10 @@ export default function Welcome({ jadwals = [], search = '' }: WelcomeProps) {
                                 </span>
                                 <button
                                     onClick={() => setSelectedRoute('all')}
-                                    className={`rounded-full px-3 py-1 font-semibold transition-all shrink-0 ${
-                                        selectedRoute === 'all'
+                                    className={`rounded-full px-3 py-1 font-semibold transition-all shrink-0 ${selectedRoute === 'all'
                                             ? 'bg-slate-900 text-white shadow-sm'
                                             : 'bg-slate-100 text-slate-600 hover:bg-slate-200'
-                                    }`}
+                                        }`}
                                 >
                                     Semua Rute
                                 </button>
@@ -339,11 +329,10 @@ export default function Welcome({ jadwals = [], search = '' }: WelcomeProps) {
                                     <button
                                         key={r}
                                         onClick={() => setSelectedRoute(r)}
-                                        className={`rounded-full px-3 py-1 font-semibold transition-all shrink-0 ${
-                                            selectedRoute === r
+                                        className={`rounded-full px-3 py-1 font-semibold transition-all shrink-0 ${selectedRoute === r
                                                 ? 'bg-slate-900 text-white shadow-sm'
                                                 : 'bg-slate-100 text-slate-600 hover:bg-slate-200'
-                                        }`}
+                                            }`}
                                     >
                                         {r}
                                     </button>
