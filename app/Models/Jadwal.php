@@ -21,11 +21,21 @@ class Jadwal extends Model
         'jam_kedatangan',
         'status_bus',
         'keterangan',
+        'current_lat',
+        'current_lng',
+        'current_heading',
+        'current_speed',
+        'last_loc_updated_at',
     ];
 
     protected $casts = [
         'tanggal' => 'date',
         'status_bus' => 'string',
+        'current_lat' => 'float',
+        'current_lng' => 'float',
+        'current_heading' => 'float',
+        'current_speed' => 'float',
+        'last_loc_updated_at' => 'datetime',
     ];
 
     public function bus(): BelongsTo

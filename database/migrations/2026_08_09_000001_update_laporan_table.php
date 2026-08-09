@@ -18,11 +18,11 @@ return new class extends Migration
             $table->string('source_type')->default('trip')->after('id_admin'); // 'trip' or 'manual'
             $table->foreignId('source_trip_id')->nullable()->after('source_type')->constrained('jadwal', 'id_jadwal')->nullOnDelete();
             $table->timestamp('submitted_at')->useCurrent()->after('source_trip_id');
-            $table->string('nama_po')->after('submitted_at');
-            $table->string('nomor_polisi')->after('nama_po');
-            $table->string('asal')->after('nomor_polisi');
-            $table->string('tujuan')->after('asal');
-            $table->string('nama_supir')->after('tujuan');
+            $table->string('nama_po')->nullable()->default('-')->after('submitted_at');
+            $table->string('nomor_polisi')->nullable()->default('-')->after('nama_po');
+            $table->string('asal')->nullable()->default('-')->after('nomor_polisi');
+            $table->string('tujuan')->nullable()->default('-')->after('asal');
+            $table->string('nama_supir')->nullable()->default('-')->after('tujuan');
             $table->integer('seat')->default(0)->after('nama_supir');
             $table->integer('pnp')->default(0)->after('seat');
             $table->integer('naik')->default(0)->after('pnp');

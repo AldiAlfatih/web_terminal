@@ -122,7 +122,7 @@ export default function SupirTracking({ jadwal }: TrackingPageProps) {
                 };
 
                 setLastPosition(posData);
-                sendLocationToServer(latitude, longitude, heading ?? null, speed ?? null);
+                sendLocationToServer(latitude, longitude, heading ?? null, posData.speed);
             },
             (error) => {
                 let errorMsg = 'Gagal mengakses sensor GPS.';

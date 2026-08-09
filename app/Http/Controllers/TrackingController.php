@@ -65,15 +65,20 @@ class TrackingController extends Controller
         $jadwal = Jadwal::where('id_supir', $supir->id_supir)
             ->findOrFail($id_jadwal);
 
-        // Auto-update status to 'berangkat' when tracking starts if currently 'menunggu'
-        if ($jadwal->status_bus === 'menunggu') {
-            $jadwal->update(['status_bus' => 'berangkat']);
-        }
-
         $lat = (float) $validated['lat'];
         $lng = (float) $validated['lng'];
         $heading = isset($validated['heading']) ? (float) $validated['heading'] : null;
         $speed = isset($validated['speed']) ? (float) $validated['speed'] : null;
+
+        // Persist latest location to DB so new page loads immediately display latest driver position
+        $jadwal->update([
+            'status_bus' => $jadwal->status_bus === 'menunggu' ? 'berangkat' : $jadwal->status_bus,
+            'current_lat' => $lat,
+            'current_lng' => $lng,
+            'current_heading' => $heading,
+            'current_speed' => $speed,
+            'last_loc_updated_at' => now(),
+        ]);
 
         // Broadcast event to WebSocket subscribers
         event(new BusLocationUpdated(

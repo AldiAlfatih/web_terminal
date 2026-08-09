@@ -10,6 +10,11 @@ interface JadwalProps {
     jam_kedatangan: string;
     status_bus: 'menunggu' | 'berangkat' | 'selesai';
     keterangan: string | null;
+    current_lat?: number | null;
+    current_lng?: number | null;
+    current_heading?: number | null;
+    current_speed?: number | null;
+    last_loc_updated_at?: string | null;
     bus: {
         nama_bus: string;
         nomor_polisi: string;
@@ -28,7 +33,7 @@ interface TrackingMapPageProps {
 }
 
 export default function PassengerTrackingMap({ jadwal }: TrackingMapPageProps) {
-    // Default coordinates: Parepare Terminal (-4.0153, 119.6247)
+    // Initialize with saved database location if available, otherwise default to Parepare Terminal (-4.0153, 119.6247)
     const [busLocation, setBusLocation] = useState<{
         lat: number;
         lng: number;
@@ -36,11 +41,13 @@ export default function PassengerTrackingMap({ jadwal }: TrackingMapPageProps) {
         speed: number | null;
         updatedAt: string | null;
     }>({
-        lat: -4.0153,
-        lng: 119.6247,
-        heading: null,
-        speed: null,
-        updatedAt: null,
+        lat: jadwal.current_lat ? Number(jadwal.current_lat) : -4.0153,
+        lng: jadwal.current_lng ? Number(jadwal.current_lng) : 119.6247,
+        heading: jadwal.current_heading ? Number(jadwal.current_heading) : null,
+        speed: jadwal.current_speed !== undefined && jadwal.current_speed !== null ? Number(jadwal.current_speed) : null,
+        updatedAt: jadwal.last_loc_updated_at
+            ? new Date(jadwal.last_loc_updated_at).toLocaleTimeString('id-ID', { hour: '2-digit', minute: '2-digit', second: '2-digit' })
+            : null,
     });
 
     const [statusBus, setStatusBus] = useState<'menunggu' | 'berangkat' | 'selesai'>(jadwal.status_bus);

@@ -138,6 +138,16 @@ class DummyDataSeeder extends Seeder
                 'periode_awal' => now()->startOfMonth()->toDateString(),
                 'jenis_laporan' => 'Jadwal Keberangkatan Bus',
                 'file_pdf' => null,
+                'nama_po' => 'PO DAMRI',
+                'nomor_polisi' => 'DD 1234 AB',
+                'asal' => 'Parepare',
+                'tujuan' => 'Makassar',
+                'nama_supir' => 'Budi Santoso',
+                'seat' => 30,
+                'pnp' => 25,
+                'naik' => 5,
+                'turun' => 0,
+                'akap_akdp' => 'AKDP',
             ]
         );
     }
