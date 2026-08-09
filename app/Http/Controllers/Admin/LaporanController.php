@@ -141,6 +141,9 @@ class LaporanController extends Controller
                 'asalList' => $asalOptions,
                 'tujuanList' => $tujuanOptions,
             ],
+            'namaKepala' => $request->input('nama_kepala', 'Syamsuddin, S.STP'),
+            'nipKepala' => $request->input('nip_kepala', '19850412 201012 1 004'),
+            'jabatanKepala' => $request->input('jabatan_kepala', 'Kepala Terminal Induk Parepare'),
         ]);
     }
 
@@ -174,6 +177,9 @@ class LaporanController extends Controller
         $bulan = (int) $request->input('bulan', now()->month);
         $tahun = (int) $request->input('tahun', now()->year);
         $formatBulanan = $request->input('format_bulanan', 'separate'); // 'separate' or 'merged'
+        $namaKepala = $request->input('nama_kepala', 'Syamsuddin, S.STP');
+        $nipKepala = $request->input('nip_kepala', '19850412 201012 1 004');
+        $jabatanKepala = $request->input('jabatan_kepala', 'Kepala Terminal Induk Parepare');
 
         $monthNames = [
             1 => 'Januari', 2 => 'Februari', 3 => 'Maret', 4 => 'April',
@@ -255,6 +261,9 @@ class LaporanController extends Controller
             'summary' => $summary,
             'laporans' => $laporans,
             'groupedByDate' => $groupedByDate,
+            'namaKepala' => $namaKepala,
+            'nipKepala' => $nipKepala,
+            'jabatanKepala' => $jabatanKepala,
         ]);
     }
 
@@ -268,6 +277,9 @@ class LaporanController extends Controller
         $bulan = (int) $request->input('bulan', now()->month);
         $tahun = (int) $request->input('tahun', now()->year);
         $formatBulanan = $request->input('format_bulanan', 'separate');
+        $namaKepala = $request->input('nama_kepala', 'Syamsuddin, S.STP');
+        $nipKepala = $request->input('nip_kepala', '19850412 201012 1 004');
+        $jabatanKepala = $request->input('jabatan_kepala', 'Kepala Terminal Induk Parepare');
 
         $monthNames = [
             1 => 'Januari', 2 => 'Februari', 3 => 'Maret', 4 => 'April',
@@ -348,6 +360,9 @@ class LaporanController extends Controller
             'summary' => $summary,
             'laporans' => $laporans,
             'groupedByDate' => $groupedByDate,
+            'namaKepala' => $namaKepala,
+            'nipKepala' => $nipKepala,
+            'jabatanKepala' => $jabatanKepala,
         ])->setPaper('a4', 'landscape');
 
         return $pdf->download($filename);

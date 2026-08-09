@@ -1,7 +1,7 @@
 import AppLayout from '@/layouts/app-layout';
 import { type BreadcrumbItem } from '@/types';
 import { Head, Link, router } from '@inertiajs/react';
-import { ArrowLeft, Calendar, Eye, FileText, Layers } from 'lucide-react';
+import { ArrowLeft, Calendar, Eye, FileText, Layers, UserCheck } from 'lucide-react';
 import { FormEventHandler, useState } from 'react';
 
 interface PdfFormProps {
@@ -30,6 +30,9 @@ export default function LaporanPdfForm({
     const [bulan, setBulan] = useState(defaultMonth);
     const [tahun, setTahun] = useState(defaultYear);
     const [formatBulanan, setFormatBulanan] = useState<'separate' | 'merged'>('separate');
+    const [namaKepala, setNamaKepala] = useState('Syamsuddin, S.STP');
+    const [nipKepala, setNipKepala] = useState('19850412 201012 1 004');
+    const [jabatanKepala, setJabatanKepala] = useState('Kepala Terminal Induk Parepare');
 
     const handlePreviewSubmit: FormEventHandler = (e) => {
         e.preventDefault();
@@ -41,6 +44,9 @@ export default function LaporanPdfForm({
                 bulan: mode === 'bulanan' ? bulan : '',
                 tahun: mode === 'bulanan' ? tahun : '',
                 format_bulanan: mode === 'bulanan' ? formatBulanan : '',
+                nama_kepala: namaKepala,
+                nip_kepala: nipKepala,
+                jabatan_kepala: jabatanKepala,
             },
             {
                 preserveState: false,
@@ -227,6 +233,49 @@ export default function LaporanPdfForm({
                                 </div>
                             </div>
                         )}
+
+                        {/* Section: Penandatangan Laporan */}
+                        <div className="p-4 rounded-2xl border border-slate-200 bg-slate-50 flex flex-col gap-3">
+                            <label className="text-xs font-bold uppercase tracking-wider text-slate-800 flex items-center gap-2">
+                                <UserCheck size={16} className="text-blue-900" />
+                                PENANDATANGAN LAPORAN (KEPALA TERMINAL)
+                            </label>
+
+                            <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                                <div className="flex flex-col gap-1">
+                                    <label className="text-xs font-semibold text-slate-700">Nama Kepala Terminal</label>
+                                    <input
+                                        type="text"
+                                        value={namaKepala}
+                                        onChange={(e) => setNamaKepala(e.target.value)}
+                                        className="input-damri text-xs py-2 px-3"
+                                        placeholder="Syamsuddin, S.STP"
+                                        required
+                                    />
+                                </div>
+                                <div className="flex flex-col gap-1">
+                                    <label className="text-xs font-semibold text-slate-700">NIP Kepala Terminal</label>
+                                    <input
+                                        type="text"
+                                        value={nipKepala}
+                                        onChange={(e) => setNipKepala(e.target.value)}
+                                        className="input-damri text-xs py-2 px-3 font-mono"
+                                        placeholder="19850412 201012 1 004"
+                                    />
+                                </div>
+                            </div>
+                            <div className="flex flex-col gap-1">
+                                <label className="text-xs font-semibold text-slate-700">Jabatan Penandatangan</label>
+                                <input
+                                    type="text"
+                                    value={jabatanKepala}
+                                    onChange={(e) => setJabatanKepala(e.target.value)}
+                                    className="input-damri text-xs py-2 px-3"
+                                    placeholder="Kepala Terminal Induk Parepare"
+                                    required
+                                />
+                            </div>
+                        </div>
 
                         {/* Action Buttons */}
                         <div className="flex items-center justify-end gap-3 pt-2">

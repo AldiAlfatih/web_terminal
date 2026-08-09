@@ -34,9 +34,20 @@ interface ShowProps {
         total_akdp: number;
     };
     laporans: LaporanRecord[];
+    namaKepala?: string;
+    nipKepala?: string;
+    jabatanKepala?: string;
 }
 
-export default function LaporanShow({ tanggal, formattedTanggal, summary, laporans }: ShowProps) {
+export default function LaporanShow({
+    tanggal,
+    formattedTanggal,
+    summary,
+    laporans,
+    namaKepala = 'Syamsuddin, S.STP',
+    nipKepala = '19850412 201012 1 004',
+    jabatanKepala = 'Kepala Terminal Induk Parepare',
+}: ShowProps) {
     const handlePrint = () => {
         window.print();
     };
@@ -238,11 +249,11 @@ export default function LaporanShow({ tanggal, formattedTanggal, summary, lapora
                         </div>
                         <div className="text-center">
                             <p className="text-slate-600 mb-1">Parepare, {formattedTanggal}</p>
-                            <p className="font-bold text-slate-900 mb-12">Kepala Terminal Induk Parepare</p>
+                            <p className="font-bold text-slate-900 mb-12">{jabatanKepala}</p>
                             <p className="font-bold text-slate-900 border-b border-slate-800 pb-0.5 inline-block">
-                                Syamsuddin, S.STP
+                                {namaKepala}
                             </p>
-                            <p className="text-[10px] text-slate-500 font-mono">NIP. 19850412 201012 1 004</p>
+                            {nipKepala && <p className="text-[10px] text-slate-500 font-mono">NIP. {nipKepala}</p>}
                         </div>
                     </div>
                 </div>

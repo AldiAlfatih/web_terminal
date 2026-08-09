@@ -322,9 +322,11 @@
                         </td>
                         <td class="signature-cell">
                             <div class="signature-date">Parepare, {{ $documentDate }}</div>
-                            <div class="signature-role">Kepala Terminal Induk Parepare</div>
-                            <div class="signature-name">Syamsuddin, S.STP</div>
-                            <div class="signature-nip">NIP. 19850412 201012 1 004</div>
+                            <div class="signature-role">{{ $jabatanKepala ?? 'Kepala Terminal Induk Parepare' }}</div>
+                            <div class="signature-name">{{ $namaKepala ?? 'Syamsuddin, S.STP' }}</div>
+                            @if (!empty($nipKepala))
+                                <div class="signature-nip">NIP. {{ $nipKepala }}</div>
+                            @endif
                         </td>
                     </tr>
                 </table>
@@ -470,9 +472,11 @@
                     </td>
                     <td class="signature-cell">
                         <div class="signature-date">Parepare, {{ $documentDate }}</div>
-                        <div class="signature-role">Kepala Terminal Induk Parepare</div>
-                        <div class="signature-name">Syamsuddin, S.STP</div>
-                        <div class="signature-nip">NIP. 19850412 201012 1 004</div>
+                        <div class="signature-role">{{ $jabatanKepala ?? 'Kepala Terminal Induk Parepare' }}</div>
+                        <div class="signature-name">{{ $namaKepala ?? 'Syamsuddin, S.STP' }}</div>
+                        @if (!empty($nipKepala))
+                            <div class="signature-nip">NIP. {{ $nipKepala }}</div>
+                        @endif
                     </td>
                 </tr>
             </table>

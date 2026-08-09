@@ -53,6 +53,9 @@ interface PreviewProps {
     };
     laporans: LaporanRecord[];
     groupedByDate: DateGroupItem[];
+    namaKepala?: string;
+    nipKepala?: string;
+    jabatanKepala?: string;
 }
 
 export default function LaporanPreview({
@@ -67,7 +70,14 @@ export default function LaporanPreview({
     summary,
     laporans,
     groupedByDate,
+    namaKepala,
+    nipKepala,
+    jabatanKepala,
 }: PreviewProps) {
+    const [namaKepalaState, setNamaKepalaState] = useState(namaKepala || 'Syamsuddin, S.STP');
+    const [nipKepalaState, setNipKepalaState] = useState(nipKepala || '19850412 201012 1 004');
+    const [jabatanKepalaState, setJabatanKepalaState] = useState(jabatanKepala || 'Kepala Terminal Induk Parepare');
+
     const handleSavePdf = () => {
         const downloadUrl = route('admin.laporan.download-pdf', {
             mode,
@@ -75,6 +85,9 @@ export default function LaporanPreview({
             bulan: mode === 'bulanan' ? bulan : '',
             tahun: mode === 'bulanan' ? tahun : '',
             format_bulanan: mode === 'bulanan' ? formatBulanan : '',
+            nama_kepala: namaKepalaState,
+            nip_kepala: nipKepalaState,
+            jabatan_kepala: jabatanKepalaState,
         });
         window.location.href = downloadUrl;
     };
@@ -283,11 +296,11 @@ export default function LaporanPreview({
                                             </div>
                                             <div className="text-center">
                                                 <p className="text-slate-600 mb-1">Parepare, {documentDate}</p>
-                                                <p className="font-bold text-slate-900 mb-12">Kepala Terminal Induk Parepare</p>
+                                                <p className="font-bold text-slate-900 mb-12">{jabatanKepalaState}</p>
                                                 <p className="font-bold text-slate-900 border-b border-slate-800 pb-0.5 inline-block">
-                                                    Syamsuddin, S.STP
+                                                    {namaKepalaState}
                                                 </p>
-                                                <p className="text-[10px] text-slate-500 font-mono">NIP. 19850412 201012 1 004</p>
+                                                {nipKepalaState && <p className="text-[10px] text-slate-500 font-mono">NIP. {nipKepalaState}</p>}
                                             </div>
                                         </div>
                                     </div>
@@ -439,11 +452,11 @@ export default function LaporanPreview({
                                 </div>
                                 <div className="text-center">
                                     <p className="text-slate-600 mb-1">Parepare, {documentDate}</p>
-                                    <p className="font-bold text-slate-900 mb-12">Kepala Terminal Induk Parepare</p>
+                                    <p className="font-bold text-slate-900 mb-12">{jabatanKepalaState}</p>
                                     <p className="font-bold text-slate-900 border-b border-slate-800 pb-0.5 inline-block">
-                                        Syamsuddin, S.STP
+                                        {namaKepalaState}
                                     </p>
-                                    <p className="text-[10px] text-slate-500 font-mono">NIP. 19850412 201012 1 004</p>
+                                    {nipKepalaState && <p className="text-[10px] text-slate-500 font-mono">NIP. {nipKepalaState}</p>}
                                 </div>
                             </div>
                         </div>
