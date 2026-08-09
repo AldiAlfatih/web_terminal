@@ -1,6 +1,6 @@
 import { Head, Link, usePage } from '@inertiajs/react';
 import axios from 'axios';
-import { ArrowLeft, ArrowRight, Bus, CheckCircle, Compass, LogOut, NavigationOff, Navigation, ShieldAlert, Zap } from 'lucide-react';
+import { ArrowLeft, ArrowRight, Bus, CheckCircle, Compass, LogOut, Navigation, NavigationOff, ShieldAlert, Zap } from 'lucide-react';
 import { useCallback, useEffect, useRef, useState } from 'react';
 
 interface JadwalProps {
@@ -116,7 +116,7 @@ export default function SupirTracking({ jadwal }: TrackingPageProps) {
                     lat: latitude,
                     lng: longitude,
                     heading: heading ?? null,
-                    speed: speed ? Math.round(speed * 3.6) : null, // convert m/s to km/h
+                    speed: speed ? Math.round(speed * 3.6) : null,
                     accuracy: Math.round(accuracy),
                     timestamp: new Date().toLocaleTimeString('id-ID'),
                 };
@@ -128,7 +128,7 @@ export default function SupirTracking({ jadwal }: TrackingPageProps) {
                 let errorMsg = 'Gagal mengakses sensor GPS.';
                 switch (error.code) {
                     case error.PERMISSION_DENIED:
-                        errorMsg = 'Izin lokasi ditolak! Harap aktifkan GPS & izinkan lokasi di browser HP Anda.';
+                        errorMsg = 'Izin lokasi ditolak! Harap aktifkan GPS di HP Anda.';
                         break;
                     case error.POSITION_UNAVAILABLE:
                         errorMsg = 'Sinyal lokasi tidak tersedia saat ini.';
@@ -187,7 +187,6 @@ export default function SupirTracking({ jadwal }: TrackingPageProps) {
         }
     };
 
-    // Re-acquire wake lock if page visibility changes while tracking is active
     useEffect(() => {
         const handleVisibilityChange = () => {
             if (document.visibilityState === 'visible' && isTracking) {
@@ -207,273 +206,165 @@ export default function SupirTracking({ jadwal }: TrackingPageProps) {
         <>
             <Head title={`Pelacak Supir — ${jadwal.bus?.nama_bus || 'Bus'}`} />
 
-            {/* Mobile-first High-Contrast Outdoor View (DAMRI Navy #003B70) */}
-            <div
-                className="min-h-screen flex flex-col justify-between p-4 text-white select-none"
-                style={{ backgroundColor: '#003B70', fontFamily: "'Inter', sans-serif" }}
-            >
-                {/* ─── Top Header: Bus & Route Info ─── */}
+            <div className="min-h-screen flex flex-col justify-between p-4 bg-slate-950 text-white font-sans selection:bg-amber-400 select-none">
+                {/* ─── Top Header Bar ─── */}
                 <div className="flex flex-col gap-3">
-                    {/* Header bar with Back & Logout Buttons */}
-                    <div className="flex items-center justify-between border-b pb-3 border-white/20">
+                    <div className="flex items-center justify-between border-b border-slate-800 pb-3">
+                        <Link
+                            href={route('supir.index')}
+                            className="inline-flex h-9 w-9 items-center justify-center rounded-xl bg-slate-900 border border-slate-800 text-slate-200 hover:text-white transition-all active:scale-95"
+                            title="Kembali ke Portal Supir"
+                        >
+                            <ArrowLeft size={18} />
+                        </Link>
+
                         <div className="flex items-center gap-2">
-                            <Link
-                                href={route('supir.index')}
-                                className="inline-flex h-8 w-8 items-center justify-center rounded-full bg-white/10 hover:bg-white/20 text-white transition-all shrink-0"
-                                title="Kembali ke Portal Supir"
+                            <span
+                                className={`rounded-full px-3 py-1 text-xs font-bold uppercase tracking-wider ${
+                                    statusBus === 'berangkat'
+                                        ? 'bg-emerald-500/10 text-emerald-400 border border-emerald-500/30'
+                                        : statusBus === 'selesai'
+                                        ? 'bg-slate-800 text-slate-300 border border-slate-700'
+                                        : 'bg-amber-400/10 text-amber-400 border border-amber-400/30'
+                                }`}
                             >
-                                <ArrowLeft size={16} />
-                            </Link>
-                            <div className="flex items-center gap-1.5">
-                                <Bus size={20} color="#FFC627" />
-                                <span
-                                    className="text-sm font-bold tracking-tight text-white"
+                                {statusBus === 'berangkat' ? '● Sedang Berjalan' : statusBus === 'selesai' ? '✓ Selesai' : 'Siap Berangkat'}
+                            </span>
+                        </div>
+                    </div>
+
+                    {/* Compact Bus & Route Card */}
+                    <div className="rounded-2xl bg-slate-900 p-4 border border-slate-800 flex flex-col gap-3 shadow-lg">
+                        <div className="flex items-start justify-between">
+                            <div>
+                                <span className="text-[10px] font-bold uppercase tracking-wider text-slate-400">
+                                    {jadwal.bus?.po_bus?.nama_po || 'PO BUS'}
+                                </span>
+                                <h1
+                                    className="text-xl font-black text-white leading-tight"
                                     style={{ fontFamily: "'Bricolage Grotesque', sans-serif" }}
                                 >
-                                    TERMINAL PAREPARE
-                                </span>
+                                    {jadwal.bus?.nama_bus || 'Bus Express'}
+                                </h1>
                             </div>
-                        </div>
-
-                        {/* Status Badge & Logout Button */}
-                        <div className="flex items-center gap-2">
-                            <span
-                                className="rounded-full px-2.5 py-1 text-xs font-bold uppercase tracking-wider"
-                                style={{
-                                    backgroundColor:
-                                        statusBus === 'berangkat'
-                                            ? '#FFC627'
-                                            : statusBus === 'selesai'
-                                            ? '#22c55e'
-                                            : '#ffffff',
-                                    color: '#001A33',
-                                }}
-                            >
-                                {statusBus === 'berangkat' ? '● Di Jalan' : statusBus === 'selesai' ? '✓ Selesai' : 'Menunggu'}
-                            </span>
-                            <Link
-                                href={route('logout')}
-                                method="post"
-                                as="button"
-                                className="inline-flex items-center gap-1 rounded-full px-3 py-1 text-xs font-semibold transition-all active:scale-95"
-                                style={{ backgroundColor: 'rgba(239, 68, 68, 0.2)', color: '#fca5a5', border: '1px solid rgba(239, 68, 68, 0.3)' }}
-                            >
-                                <LogOut size={13} />
-                                Keluar
-                            </Link>
-                        </div>
-                    </div>
-
-                    {/* Supir Info */}
-                    {supir && (
-                        <div
-                            className="rounded-2xl px-4 py-2.5 flex items-center justify-between"
-                            style={{ backgroundColor: 'rgba(255, 198, 39, 0.1)', border: '1px solid rgba(255, 198, 39, 0.2)' }}
-                        >
-                            <div>
-                                <p className="text-[10px] uppercase tracking-widest text-white/50">Supir</p>
-                                <p className="text-sm font-bold text-white">{supir.nama_supir}</p>
-                            </div>
-                        </div>
-                    )}
-
-                    {/* Bus & License Plate Card */}
-                    <div
-                        className="rounded-2xl p-4 flex flex-col gap-2"
-                        style={{ backgroundColor: 'rgba(255, 255, 255, 0.08)', border: '1px solid rgba(255, 255, 255, 0.15)' }}
-                    >
-                        <p className="text-xs uppercase tracking-widest text-white/70">Armada Supir</p>
-                        <h1
-                            className="text-2xl font-extrabold text-white leading-tight"
-                            style={{ fontFamily: "'Bricolage Grotesque', sans-serif" }}
-                        >
-                            {jadwal.bus?.nama_bus || 'Bus Express'}
-                        </h1>
-                        <div className="flex items-center gap-3">
-                            <span
-                                className="rounded-md px-3 py-1 text-sm font-bold tracking-wider"
-                                style={{
-                                    backgroundColor: '#001A33',
-                                    color: '#FFC627',
-                                    fontFamily: "'JetBrains Mono', monospace",
-                                }}
-                            >
-                                {jadwal.bus?.nomor_polisi || 'PLATE'}
-                            </span>
-                            <span className="text-xs text-white/80">
-                                {jadwal.bus?.po_bus?.nama_po || 'PO DAMRI'}
+                            <span className="rounded-lg bg-slate-950 px-2.5 py-1 text-xs font-mono font-extrabold text-amber-400 border border-slate-800">
+                                {jadwal.bus?.nomor_polisi}
                             </span>
                         </div>
-                    </div>
 
-                    {/* Route Info */}
-                    <div
-                        className="rounded-2xl p-4 flex items-center justify-between"
-                        style={{ backgroundColor: 'rgba(255, 255, 255, 0.08)', border: '1px solid rgba(255, 255, 255, 0.15)' }}
-                    >
-                        <div>
-                            <p className="text-[10px] uppercase tracking-wider text-white/60">Asal</p>
-                            <p className="text-base font-bold text-white">{jadwal.rute?.asal}</p>
-                        </div>
-                        <div className="flex flex-col items-center">
-                            <ArrowRight size={20} color="#FFC627" />
-                            <span className="text-[10px] font-mono text-white/60">{jadwal.jam_keberangkatan?.slice(0, 5)} WITA</span>
-                        </div>
-                        <div className="text-right">
-                            <p className="text-[10px] uppercase tracking-wider text-white/60">Tujuan</p>
-                            <p className="text-base font-bold text-white">{jadwal.rute?.tujuan}</p>
+                        {/* Route Strip */}
+                        <div className="rounded-xl bg-slate-950 p-3 border border-slate-800/80 flex items-center justify-between text-xs font-bold">
+                            <span className="text-white">{jadwal.rute?.asal}</span>
+                            <ArrowRight size={14} className="text-amber-400 shrink-0" />
+                            <span className="text-white">{jadwal.rute?.tujuan}</span>
+                            <span className="text-slate-400 font-mono text-[11px] ml-2">({jadwal.jam_keberangkatan?.slice(0, 5)} WITA)</span>
                         </div>
                     </div>
                 </div>
 
-                {/* ─── Center: MASSIVE Start/Stop Journey Button ─── */}
+                {/* ─── Center Action Area ─── */}
                 <div className="my-auto flex flex-col items-center justify-center gap-6 py-6">
-                    {/* Error Notice */}
                     {gpsError && (
-                        <div className="rounded-2xl bg-red-500/20 border border-red-500/50 p-4 text-center text-red-200 text-xs flex items-center gap-2 max-w-xs">
-                            <ShieldAlert size={20} className="shrink-0 text-red-400" />
+                        <div className="rounded-2xl bg-red-500/10 border border-red-500/30 p-3.5 text-center text-red-400 text-xs flex items-center gap-2 max-w-xs">
+                            <ShieldAlert size={18} className="shrink-0" />
                             <span>{gpsError}</span>
                         </div>
                     )}
 
                     {statusBus === 'selesai' ? (
                         <div className="flex flex-col items-center gap-4 text-center">
-                            <div className="flex h-24 w-24 items-center justify-center rounded-full bg-green-500/20 border-2 border-green-500">
-                                <CheckCircle size={48} className="text-green-400" />
+                            <div className="flex h-20 w-20 items-center justify-center rounded-full bg-emerald-500/10 border-2 border-emerald-500 text-emerald-400">
+                                <CheckCircle size={40} />
                             </div>
                             <div>
                                 <h2
-                                    className="text-2xl font-bold text-white"
+                                    className="text-2xl font-black text-white"
                                     style={{ fontFamily: "'Bricolage Grotesque', sans-serif" }}
                                 >
                                     Perjalanan Selesai
                                 </h2>
-                                <p className="text-xs text-white/70 max-w-xs mt-1">
-                                    Terima kasih Pak Supir! Seluruh data perjalanan dan titik lokasi telah tersimpan.
+                                <p className="text-xs text-slate-400 mt-1 max-w-xs">
+                                    Terima kasih Pak Supir! Seluruh data perjalanan dan titik lokasi telah tersimpan di sistem.
                                 </p>
                             </div>
-
-                            {/* Action Buttons when Finished */}
-                            <div className="flex items-center gap-3 mt-2">
-                                <Link
-                                    href={route('supir.index')}
-                                    className="inline-flex items-center gap-2 rounded-full px-5 py-2.5 text-xs font-bold transition-all active:scale-95"
-                                    style={{ backgroundColor: '#ffffff', color: '#001A33' }}
-                                >
-                                    <ArrowLeft size={14} />
-                                    Kembali ke Portal
-                                </Link>
-                                <Link
-                                    href={route('logout')}
-                                    method="post"
-                                    as="button"
-                                    className="inline-flex items-center gap-2 rounded-full px-5 py-2.5 text-xs font-bold transition-all active:scale-95"
-                                    style={{ backgroundColor: '#ef4444', color: '#ffffff' }}
-                                >
-                                    <LogOut size={14} />
-                                    Keluar / Logout
-                                </Link>
-                            </div>
+                            <Link
+                                href={route('supir.index')}
+                                className="mt-2 inline-flex items-center gap-2 rounded-xl bg-amber-400 px-6 py-3 text-xs font-bold text-slate-950 shadow-md shadow-amber-400/20 active:scale-95"
+                            >
+                                <ArrowLeft size={16} />
+                                <span>Kembali ke Portal Supir</span>
+                            </Link>
                         </div>
                     ) : (
-                        <div className="flex flex-col items-center gap-4">
-                            {/* MASSIVE Screen-Centered Pill Button */}
+                        <div className="flex flex-col items-center gap-5 w-full max-w-xs">
                             {!isTracking ? (
                                 <button
                                     onClick={handleStartJourney}
                                     disabled={loading}
-                                    className="group relative flex h-48 w-48 flex-col items-center justify-center rounded-full shadow-2xl transition-all active:scale-95"
-                                    style={{
-                                        backgroundColor: '#FFC627',
-                                        color: '#001A33',
-                                        boxShadow: '0 0 50px rgba(255, 198, 39, 0.4)',
-                                    }}
+                                    className="w-full py-5 rounded-2xl bg-amber-400 text-slate-950 font-black text-base uppercase tracking-wider flex items-center justify-center gap-3 shadow-xl shadow-amber-400/20 hover:bg-amber-300 transition-all active:scale-95"
+                                    style={{ fontFamily: "'Bricolage Grotesque', sans-serif" }}
                                 >
-                                    <Navigation size={44} className="mb-1 transition-transform group-hover:scale-110" />
-                                    <span
-                                        className="text-center text-lg font-black uppercase tracking-tight leading-tight px-3"
-                                        style={{ fontFamily: "'Bricolage Grotesque', sans-serif" }}
-                                    >
-                                        MULAI<br />PERJALANAN
-                                    </span>
+                                    <Navigation size={22} />
+                                    <span>MULAI PERJALANAN</span>
                                 </button>
                             ) : (
                                 <button
                                     onClick={handleFinishJourney}
                                     disabled={loading}
-                                    className="group relative flex h-48 w-48 flex-col items-center justify-center rounded-full shadow-2xl transition-all active:scale-95 bg-red-600 text-white"
-                                    style={{
-                                        boxShadow: '0 0 50px rgba(239, 68, 68, 0.5)',
-                                    }}
+                                    className="w-full py-5 rounded-2xl bg-red-600 text-white font-black text-base uppercase tracking-wider flex items-center justify-center gap-3 shadow-xl shadow-red-600/30 hover:bg-red-500 transition-all active:scale-95 animate-pulse"
+                                    style={{ fontFamily: "'Bricolage Grotesque', sans-serif" }}
                                 >
-                                    <NavigationOff size={44} className="mb-1 animate-pulse" />
-                                    <span
-                                        className="text-center text-lg font-black uppercase tracking-tight leading-tight px-3"
-                                        style={{ fontFamily: "'Bricolage Grotesque', sans-serif" }}
-                                    >
-                                        SELESAI<br />PERJALANAN
-                                    </span>
+                                    <NavigationOff size={22} />
+                                    <span>SELESAIKAN PERJALANAN</span>
                                 </button>
                             )}
 
-                            <p className="text-xs text-white/70 font-medium text-center">
+                            <p className="text-xs text-slate-400 text-center font-medium">
                                 {!isTracking
-                                    ? 'Tekan tombol kuning di atas untuk mengaktifkan lacak GPS live'
-                                    : 'Lacak GPS aktif • Tekan merah jika bus telah tiba di tujuan'}
+                                    ? 'Tekan tombol di atas untuk mengaktifkan pancaran sinyal GPS live'
+                                    : 'Sinyal GPS aktif terpancar • Tekan tombol jika telah sampai di tujuan'}
                             </p>
                         </div>
                     )}
                 </div>
 
-                {/* ─── Bottom Status Bar: GPS & Wake Lock Diagnostics ─── */}
-                <div className="flex flex-col gap-2">
+                {/* ─── Bottom Telemetry & Status ─── */}
+                <div className="flex flex-col gap-3">
                     {isTracking && (
-                        <div
-                            className="rounded-2xl p-3 flex items-center justify-between text-xs"
-                            style={{ backgroundColor: 'rgba(255, 255, 255, 0.1)', border: '1px solid rgba(255, 255, 255, 0.15)' }}
-                        >
-                            <div className="flex items-center gap-2">
-                                <span className="relative flex h-2.5 w-2.5">
-                                    <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-green-400 opacity-75"></span>
-                                    <span className="relative inline-flex rounded-full h-2.5 w-2.5 bg-green-500"></span>
-                                </span>
+                        <div className="rounded-xl bg-slate-900 p-3 border border-slate-800 flex items-center justify-between text-xs font-mono">
+                            <div className="flex items-center gap-2 text-emerald-400">
+                                <span className="h-2 w-2 rounded-full bg-emerald-400 animate-ping"></span>
                                 <span>Pancar GPS ({sentCount}x)</span>
                             </div>
-
-                            {/* Wake lock indicator */}
-                            <div className="flex items-center gap-1.5 text-white/80">
-                                <Zap size={14} color={wakeLockActive ? '#FFC627' : '#ffffff'} />
-                                <span>{wakeLockActive ? 'Layar Nyala (Wake Lock)' : 'Standby'}</span>
+                            <div className="flex items-center gap-1.5 text-slate-400">
+                                <Zap size={14} className={wakeLockActive ? 'text-amber-400' : 'text-slate-500'} />
+                                <span>{wakeLockActive ? 'Layar Tetap Nyala' : 'Standby'}</span>
                             </div>
                         </div>
                     )}
 
-                    {/* Coordinates & telemetry readout */}
                     {lastPosition && (
-                        <div
-                            className="rounded-2xl p-3 grid grid-cols-3 gap-2 text-center text-[11px] font-mono"
-                            style={{ backgroundColor: 'rgba(0, 26, 51, 0.6)', border: '1px solid rgba(255, 255, 255, 0.1)' }}
-                        >
+                        <div className="rounded-xl bg-slate-900 p-3 grid grid-cols-3 gap-2 text-center text-xs font-mono border border-slate-800">
                             <div>
-                                <p className="text-[9px] uppercase text-white/50 font-sans">Kecepatan</p>
-                                <p className="font-bold text-yellow-400">{lastPosition.speed ?? 0} km/j</p>
+                                <span className="text-[10px] uppercase text-slate-500 block font-sans">Kecepatan</span>
+                                <span className="font-bold text-amber-400">{lastPosition.speed ?? 0} km/jam</span>
                             </div>
                             <div>
-                                <p className="text-[9px] uppercase text-white/50 font-sans">Arah</p>
-                                <p className="font-bold text-white flex items-center justify-center gap-1">
-                                    <Compass size={12} color="#FFC627" />
+                                <span className="text-[10px] uppercase text-slate-500 block font-sans">Arah</span>
+                                <span className="font-bold text-white flex items-center justify-center gap-1">
+                                    <Compass size={12} className="text-amber-400" />
                                     {lastPosition.heading ? `${Math.round(lastPosition.heading)}°` : 'N/A'}
-                                </p>
+                                </span>
                             </div>
                             <div>
-                                <p className="text-[9px] uppercase text-white/50 font-sans">Akurasi</p>
-                                <p className="font-bold text-green-400">±{lastPosition.accuracy}m</p>
+                                <span className="text-[10px] uppercase text-slate-500 block font-sans">Akurasi</span>
+                                <span className="font-bold text-emerald-400">±{lastPosition.accuracy}m</span>
                             </div>
                         </div>
                     )}
 
-                    <div className="text-center text-[10px] text-white/40 pt-1">
-                        Sistem Informasi Terminal Induk Parepare • Web Geolocation Engine
+                    <div className="text-center text-[10px] text-slate-500">
+                        Terminal Induk Parepare • Web GPS Engine
                     </div>
                 </div>
             </div>
