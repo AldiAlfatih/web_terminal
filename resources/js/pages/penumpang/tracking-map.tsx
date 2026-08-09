@@ -50,6 +50,70 @@ export default function PassengerTrackingMap({ jadwal }: TrackingMapPageProps) {
             : null,
     });
 
+    // ─── ETA & Duration Calculations ───
+    const [nowTime, setNowTime] = useState<Date>(new Date());
+
+    // Update clock every second for live countdown
+    useEffect(() => {
+        const timer = setInterval(() => setNowTime(new Date()), 1000);
+        return () => clearInterval(timer);
+    }, []);
+
+    // Parse "HH:MM:SS" time string into today's Date object
+    const parseTimeToDate = (timeStr: string | null): Date | null => {
+        if (!timeStr) return null;
+        const [h, m, s] = timeStr.split(':').map(Number);
+        const d = new Date();
+        d.setHours(h, m, s || 0, 0);
+        return d;
+    };
+
+    // Calculate minutes remaining until arrival
+    const getEtaMinutes = (): number | null => {
+        const arrival = parseTimeToDate(jadwal.jam_kedatangan);
+        if (!arrival) return null;
+        const diffMs = arrival.getTime() - nowTime.getTime();
+        return Math.round(diffMs / 60000);
+    };
+
+    // Format ETA minutes into human-readable string
+    const formatEta = (): string => {
+        if (statusBus === 'selesai') return '✓ Selesai';
+        if (statusBus === 'menunggu') return 'Belum Berangkat';
+        const mins = getEtaMinutes();
+        if (mins === null) return '—';
+        if (mins < 0) return 'Melebihi Jadwal';
+        if (mins === 0) return 'Hampir Tiba!';
+        const h = Math.floor(mins / 60);
+        const m = mins % 60;
+        if (h > 0) return `${h} jam ${m} mnt lagi`;
+        return `${m} menit lagi`;
+    };
+
+    // Calculate total planned journey duration
+    const getTotalDuration = (): string => {
+        const dep = parseTimeToDate(jadwal.jam_keberangkatan);
+        const arr = parseTimeToDate(jadwal.jam_kedatangan);
+        if (!dep || !arr) return '—';
+        const diffMs = arr.getTime() - dep.getTime();
+        const totalMins = Math.round(diffMs / 60000);
+        if (totalMins <= 0) return '—';
+        const h = Math.floor(totalMins / 60);
+        const m = totalMins % 60;
+        if (h > 0) return `${h} jam ${m} mnt`;
+        return `${m} menit`;
+    };
+
+    // ETA countdown color
+    const getEtaColor = (): string => {
+        if (statusBus === 'selesai') return '#16a34a';
+        if (statusBus === 'menunggu') return '#6b7280';
+        const mins = getEtaMinutes();
+        if (mins === null || mins < 0) return '#dc2626';
+        if (mins <= 10) return '#d97706';
+        return '#1d4ed8';
+    };
+
     const [statusBus, setStatusBus] = useState<'menunggu' | 'berangkat' | 'selesai'>(jadwal.status_bus);
     const [isLiveConnected, setIsLiveConnected] = useState<boolean>(false);
     const [leafletLoaded, setLeafletLoaded] = useState<boolean>(false);
@@ -323,45 +387,58 @@ export default function PassengerTrackingMap({ jadwal }: TrackingMapPageProps) {
                         </div>
                     </div>
 
-                    {/* Telemetry Summary Bar */}
-                    <div className="grid grid-cols-2 gap-3 sm:grid-cols-4">
-                        <div
-                            className="p-3.5 text-center"
-                            style={{ backgroundColor: '#ffffff', border: '1px solid #d4cfc6', borderRadius: '12px' }}
-                        >
-                            <p className="text-[10px] font-semibold uppercase text-gray-500">Jam Keberangkatan</p>
+                    {/* ─── Telemetry & ETA Info Bar ─── */}
+                    <div className="grid grid-cols-2 gap-3 sm:grid-cols-3 lg:grid-cols-6">
+
+                        {/* Card 1: Keberangkatan */}
+                        <div className="p-3.5 text-center" style={{ backgroundColor: '#ffffff', border: '1px solid #d4cfc6', borderRadius: '12px' }}>
+                            <p className="text-[10px] font-semibold uppercase text-gray-500">🕐 Berangkat</p>
                             <p className="font-mono text-sm font-bold text-blue-950 mt-0.5">{jadwal.jam_keberangkatan?.slice(0, 5)} WITA</p>
                         </div>
 
+                        {/* Card 2: Jadwal Tiba */}
+                        <div className="p-3.5 text-center" style={{ backgroundColor: '#ffffff', border: '1px solid #d4cfc6', borderRadius: '12px' }}>
+                            <p className="text-[10px] font-semibold uppercase text-gray-500">🏁 Tiba (Jadwal)</p>
+                            <p className="font-mono text-sm font-bold text-blue-950 mt-0.5">{jadwal.jam_kedatangan?.slice(0, 5)} WITA</p>
+                        </div>
+
+                        {/* Card 3: Total Durasi */}
+                        <div className="p-3.5 text-center" style={{ backgroundColor: '#ffffff', border: '1px solid #d4cfc6', borderRadius: '12px' }}>
+                            <p className="text-[10px] font-semibold uppercase text-gray-500">⏱ Total Perjalanan</p>
+                            <p className="font-mono text-sm font-bold text-purple-700 mt-0.5">{getTotalDuration()}</p>
+                        </div>
+
+                        {/* Card 4: ETA (Live Countdown) */}
                         <div
-                            className="p-3.5 text-center"
-                            style={{ backgroundColor: '#ffffff', border: '1px solid #d4cfc6', borderRadius: '12px' }}
+                            className="col-span-2 sm:col-span-1 p-3.5 text-center"
+                            style={{
+                                backgroundColor: statusBus === 'berangkat' ? '#eff6ff' : '#ffffff',
+                                border: `1px solid ${statusBus === 'berangkat' ? '#bfdbfe' : '#d4cfc6'}`,
+                                borderRadius: '12px',
+                            }}
                         >
-                            <p className="text-[10px] font-semibold uppercase text-gray-500">Kecepatan Bus</p>
+                            <p className="text-[10px] font-semibold uppercase text-gray-500">⏳ Perkiraan Tiba</p>
+                            <p className="font-mono text-sm font-bold mt-0.5" style={{ color: getEtaColor() }}>
+                                {formatEta()}
+                            </p>
+                        </div>
+
+                        {/* Card 5: Kecepatan Live */}
+                        <div className="p-3.5 text-center" style={{ backgroundColor: '#ffffff', border: '1px solid #d4cfc6', borderRadius: '12px' }}>
+                            <p className="text-[10px] font-semibold uppercase text-gray-500">🚀 Kecepatan</p>
                             <p className="font-mono text-sm font-bold text-amber-600 mt-0.5">
-                                {busLocation.speed !== null ? `${busLocation.speed} km/jam` : '0 km/jam'}
+                                {busLocation.speed !== null ? `${Math.round(busLocation.speed)} km/jam` : '0 km/jam'}
                             </p>
                         </div>
 
-                        <div
-                            className="p-3.5 text-center"
-                            style={{ backgroundColor: '#ffffff', border: '1px solid #d4cfc6', borderRadius: '12px' }}
-                        >
-                            <p className="text-[10px] font-semibold uppercase text-gray-500">Update Terakhir</p>
+                        {/* Card 6: Update Terakhir */}
+                        <div className="p-3.5 text-center" style={{ backgroundColor: '#ffffff', border: '1px solid #d4cfc6', borderRadius: '12px' }}>
+                            <p className="text-[10px] font-semibold uppercase text-gray-500">📡 Update GPS</p>
                             <p className="font-mono text-sm font-bold text-emerald-700 mt-0.5">
-                                {busLocation.updatedAt || 'Menunggu sinyal...'}
+                                {busLocation.updatedAt || '—'}
                             </p>
                         </div>
 
-                        <div
-                            className="p-3.5 text-center"
-                            style={{ backgroundColor: '#ffffff', border: '1px solid #d4cfc6', borderRadius: '12px' }}
-                        >
-                            <p className="text-[10px] font-semibold uppercase text-gray-500">Status Lacak</p>
-                            <p className="font-mono text-sm font-bold text-blue-900 mt-0.5">
-                                {statusBus === 'berangkat' ? 'Live GPS' : 'Standby'}
-                            </p>
-                        </div>
                     </div>
 
                     {/* ─── Map Container ─── */}
