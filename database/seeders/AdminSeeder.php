@@ -18,9 +18,9 @@ class AdminSeeder extends Seeder
             ['username' => 'admin'],
             [
                 'nama_admin' => 'Super Admin',
-                'username'   => 'admin',
-                'password'   => Hash::make('admin123'),
-                'level'      => 'superadmin',
+                'username' => 'admin',
+                'password' => Hash::make('admin123'),
+                'level' => 'superadmin',
             ]
         );
 
@@ -28,9 +28,9 @@ class AdminSeeder extends Seeder
             ['username' => 'petugas1'],
             [
                 'nama_admin' => 'Petugas Terminal',
-                'username'   => 'petugas1',
-                'password'   => Hash::make('petugas123'),
-                'level'      => 'petugas',
+                'username' => 'petugas1',
+                'password' => Hash::make('petugas123'),
+                'level' => 'petugas',
             ]
         );
     }

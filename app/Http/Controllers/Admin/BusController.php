@@ -22,7 +22,7 @@ class BusController extends Controller
     public function create(): Response
     {
         return Inertia::render('admin/bus/form', [
-            'bus'     => null,
+            'bus' => null,
             'poBuses' => PoBus::orderBy('nama_po')->get(['id_po', 'nama_po']),
         ]);
     }
@@ -30,8 +30,8 @@ class BusController extends Controller
     public function store(Request $request): RedirectResponse
     {
         $validated = $request->validate([
-            'id_po'        => 'required|exists:po_bus,id_po',
-            'nama_bus'     => 'required|string|max:255',
+            'id_po' => 'required|exists:po_bus,id_po',
+            'nama_bus' => 'required|string|max:255',
             'nomor_polisi' => 'required|string|max:20',
         ]);
 
@@ -44,7 +44,7 @@ class BusController extends Controller
     public function edit(Bus $bus): Response
     {
         return Inertia::render('admin/bus/form', [
-            'bus'     => $bus->load('poBus'),
+            'bus' => $bus->load('poBus'),
             'poBuses' => PoBus::orderBy('nama_po')->get(['id_po', 'nama_po']),
         ]);
     }
@@ -52,8 +52,8 @@ class BusController extends Controller
     public function update(Request $request, Bus $bus): RedirectResponse
     {
         $validated = $request->validate([
-            'id_po'        => 'required|exists:po_bus,id_po',
-            'nama_bus'     => 'required|string|max:255',
+            'id_po' => 'required|exists:po_bus,id_po',
+            'nama_bus' => 'required|string|max:255',
             'nomor_polisi' => 'required|string|max:20',
         ]);
 

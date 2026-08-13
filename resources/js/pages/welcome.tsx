@@ -114,8 +114,12 @@ export default function Welcome({ jadwals = [], search = '' }: WelcomeProps) {
                     <div className="mx-auto flex max-w-7xl items-center justify-between px-4 py-3 sm:px-6">
                         {/* Logo & Terminal Name */}
                         <div className="flex items-center gap-3">
-                            <div className="flex h-11 w-11 items-center justify-center rounded-2xl bg-amber-400 shadow-md shadow-amber-400/20 ring-2 ring-amber-300/50 shrink-0">
-                                <Bus className="h-6 w-6 text-slate-950" />
+                            <div className="flex h-11 w-11 items-center justify-center rounded-2xl bg-white/10 p-1 shadow-md shadow-slate-950/40 ring-1 ring-white/20 shrink-0 backdrop-blur-sm">
+                                <img
+                                    src="/images/logo.png"
+                                    alt="Logo Kemenhub"
+                                    className="h-full w-full object-contain"
+                                />
                             </div>
                             <div>
                                 <div className="flex items-center gap-2">
@@ -604,8 +608,12 @@ export default function Welcome({ jadwals = [], search = '' }: WelcomeProps) {
                 <footer className="bg-slate-950 text-slate-400 py-10 px-4 sm:px-6 border-t border-slate-800 text-xs">
                     <div className="mx-auto max-w-7xl flex flex-col md:flex-row items-center justify-between gap-4 text-center md:text-left">
                         <div className="flex items-center gap-3">
-                            <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-amber-400 text-slate-950 font-bold">
-                                <Bus size={18} />
+                            <div className="flex h-9 w-9 items-center justify-center rounded-xl bg-white/10 p-1 border border-white/20">
+                                <img
+                                    src="/images/logo.png"
+                                    alt="Logo Kemenhub"
+                                    className="h-full w-full object-contain"
+                                />
                             </div>
                             <span className="font-bold text-white text-sm">Terminal Induk Parepare</span>
                         </div>

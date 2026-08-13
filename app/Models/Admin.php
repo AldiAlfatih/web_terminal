@@ -9,6 +9,7 @@ use Illuminate\Foundation\Auth\User as Authenticatable;
 class Admin extends Authenticatable
 {
     protected $table = 'admin';
+
     protected $primaryKey = 'id_admin';
 
     /**
@@ -59,7 +60,7 @@ class Admin extends Authenticatable
     protected function email(): Attribute
     {
         return Attribute::make(
-            get: fn () => $this->username . '@terminal.local',
+            get: fn () => $this->username.'@terminal.local',
         );
     }
 

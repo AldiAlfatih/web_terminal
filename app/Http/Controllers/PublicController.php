@@ -24,16 +24,16 @@ class PublicController extends Controller
         if ($search) {
             $query->whereHas('bus', function ($q) use ($search) {
                 $q->where('nama_bus', 'like', "%{$search}%")
-                  ->orWhere('nomor_polisi', 'like', "%{$search}%");
+                    ->orWhere('nomor_polisi', 'like', "%{$search}%");
             })->orWhereHas('rute', function ($q) use ($search) {
                 $q->where('asal', 'like', "%{$search}%")
-                  ->orWhere('tujuan', 'like', "%{$search}%");
+                    ->orWhere('tujuan', 'like', "%{$search}%");
             });
         }
 
         return Inertia::render('welcome', [
             'jadwals' => $query->get(),
-            'search'  => $search ?? '',
+            'search' => $search ?? '',
         ]);
     }
 

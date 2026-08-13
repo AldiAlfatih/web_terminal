@@ -54,8 +54,12 @@ export default function SupirIndex({ jadwals = [] }: SupirIndexProps) {
                 <header className="sticky top-0 z-30 bg-slate-900/90 backdrop-blur-md border-b border-slate-800 px-4 py-3 sm:px-6">
                     <div className="mx-auto flex max-w-lg items-center justify-between">
                         <div className="flex items-center gap-3">
-                            <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-amber-400 text-slate-950 font-bold shadow-md shadow-amber-400/20">
-                                <Bus size={22} />
+                            <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-white/10 p-1 border border-white/20 shadow-md">
+                                <img
+                                    src="/images/logo.png"
+                                    alt="Logo Kemenhub"
+                                    className="h-full w-full object-contain"
+                                />
                             </div>
                             <div>
                                 <h1

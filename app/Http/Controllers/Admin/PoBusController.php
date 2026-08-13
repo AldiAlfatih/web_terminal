@@ -28,8 +28,8 @@ class PoBusController extends Controller
     public function store(Request $request): RedirectResponse
     {
         $validated = $request->validate([
-            'nama_po'    => 'required|string|max:255',
-            'alamat_po'  => 'required|string',
+            'nama_po' => 'required|string|max:255',
+            'alamat_po' => 'required|string',
             'no_telp_po' => 'required|string|max:20',
         ]);
 
@@ -49,8 +49,8 @@ class PoBusController extends Controller
     public function update(Request $request, PoBus $poBus): RedirectResponse
     {
         $validated = $request->validate([
-            'nama_po'    => 'required|string|max:255',
-            'alamat_po'  => 'required|string',
+            'nama_po' => 'required|string|max:255',
+            'alamat_po' => 'required|string',
             'no_telp_po' => 'required|string|max:20',
         ]);
 

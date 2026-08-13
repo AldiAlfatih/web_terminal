@@ -29,18 +29,12 @@
         .kop-logo-cell {
             width: 60px;
             vertical-align: middle;
-        }
-        .kop-logo-box {
-            width: 50px;
-            height: 50px;
-            background-color: #FFC627;
-            border-radius: 8px;
             text-align: center;
-            line-height: 50px;
-            font-weight: bold;
-            color: #003B70;
-            font-size: 20pt;
-            border: 1px solid #0f172a;
+        }
+        .kop-logo-img {
+            width: 52px;
+            height: auto;
+            max-height: 60px;
         }
         .kop-text-cell {
             vertical-align: middle;
@@ -200,7 +194,7 @@
                 <table class="kop-table">
                     <tr>
                         <td class="kop-logo-cell">
-                            <div class="kop-logo-box">BUS</div>
+                            <img src="{{ public_path('images/logo.png') }}" class="kop-logo-img" alt="Logo Dishub">
                         </td>
                         <td class="kop-text-cell">
                             <h1 class="kop-title-1">DINAS PERHUBUNGAN KOTA PAREPARE</h1>
@@ -346,7 +340,7 @@
             <table class="kop-table">
                 <tr>
                     <td class="kop-logo-cell">
-                        <div class="kop-logo-box">BUS</div>
+                        <img src="{{ public_path('images/logo.png') }}" class="kop-logo-img" alt="Logo Dishub">
                     </td>
                     <td class="kop-text-cell">
                         <h1 class="kop-title-1">DINAS PERHUBUNGAN KOTA PAREPARE</h1>

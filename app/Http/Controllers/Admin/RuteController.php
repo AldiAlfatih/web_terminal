@@ -28,8 +28,8 @@ class RuteController extends Controller
     public function store(Request $request): RedirectResponse
     {
         $validated = $request->validate([
-            'asal'            => 'required|string|max:255',
-            'tujuan'          => 'required|string|max:255',
+            'asal' => 'required|string|max:255',
+            'tujuan' => 'required|string|max:255',
             'keterangan_rute' => 'nullable|string',
         ]);
 
@@ -49,8 +49,8 @@ class RuteController extends Controller
     public function update(Request $request, Rute $rute): RedirectResponse
     {
         $validated = $request->validate([
-            'asal'            => 'required|string|max:255',
-            'tujuan'          => 'required|string|max:255',
+            'asal' => 'required|string|max:255',
+            'tujuan' => 'required|string|max:255',
             'keterangan_rute' => 'nullable|string',
         ]);
 

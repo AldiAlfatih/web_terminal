@@ -8,6 +8,7 @@ use Illuminate\Database\Eloquent\Relations\HasMany;
 class PoBus extends Model
 {
     protected $table = 'po_bus';
+
     protected $primaryKey = 'id_po';
 
     protected $fillable = [

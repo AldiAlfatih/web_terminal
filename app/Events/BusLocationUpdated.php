@@ -4,7 +4,6 @@ namespace App\Events;
 
 use Illuminate\Broadcasting\Channel;
 use Illuminate\Broadcasting\InteractsWithSockets;
-
 use Illuminate\Contracts\Broadcasting\ShouldBroadcastNow;
 use Illuminate\Foundation\Events\Dispatchable;
 use Illuminate\Queue\SerializesModels;
@@ -14,10 +13,15 @@ class BusLocationUpdated implements ShouldBroadcastNow
     use Dispatchable, InteractsWithSockets, SerializesModels;
 
     public int $id_jadwal;
+
     public float $lat;
+
     public float $lng;
+
     public ?float $heading;
+
     public ?float $speed;
+
     public string $status_bus;
 
     /**
@@ -36,12 +40,12 @@ class BusLocationUpdated implements ShouldBroadcastNow
     /**
      * Get the channels the event should broadcast on.
      *
-     * @return array<int, \Illuminate\Broadcasting\Channel>
+     * @return array<int, Channel>
      */
     public function broadcastOn(): array
     {
         return [
-            new Channel('tracking.jadwal.' . $this->id_jadwal),
+            new Channel('tracking.jadwal.'.$this->id_jadwal),
         ];
     }
 
@@ -61,13 +65,13 @@ class BusLocationUpdated implements ShouldBroadcastNow
     public function broadcastWith(): array
     {
         return [
-            'id_jadwal'  => $this->id_jadwal,
-            'lat'        => $this->lat,
-            'lng'        => $this->lng,
-            'heading'    => $this->heading,
-            'speed'      => $this->speed,
+            'id_jadwal' => $this->id_jadwal,
+            'lat' => $this->lat,
+            'lng' => $this->lng,
+            'heading' => $this->heading,
+            'speed' => $this->speed,
             'status_bus' => $this->status_bus,
-            'timestamp'  => now()->toIso8601String(),
+            'timestamp' => now()->toIso8601String(),
         ];
     }
 }
