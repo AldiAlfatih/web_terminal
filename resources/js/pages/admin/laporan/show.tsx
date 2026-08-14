@@ -1,5 +1,6 @@
 import { Head, Link } from '@inertiajs/react';
 import { ArrowLeft, Bus, Printer } from 'lucide-react';
+import AppLogoIcon from '@/components/app-logo-icon';
 
 interface LaporanRecord {
     id_laporan: number;
@@ -112,8 +113,8 @@ export default function LaporanShow({
                     {/* Kop Surat / Header Resmi Terminal Induk Parepare */}
                     <div className="flex items-center justify-between border-b-4 border-slate-900 pb-4 mb-6">
                         <div className="flex items-center gap-4">
-                            <div className="h-16 w-16 bg-[#FFC627] rounded-2xl flex items-center justify-center shrink-0 border border-slate-900 print:border-black">
-                                <Bus size={36} color="#003B70" />
+                            <div className="h-16 w-16 rounded-2xl flex items-center justify-center shrink-0 border border-slate-900 print:border-black p-1.5 bg-white overflow-hidden">
+                                <AppLogoIcon className="h-full w-full object-contain" />
                             </div>
                             <div>
                                 <h1

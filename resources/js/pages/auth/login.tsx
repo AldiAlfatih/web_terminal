@@ -2,6 +2,7 @@ import { Head, useForm } from '@inertiajs/react';
 import { LoaderCircle, Bus, Eye, EyeOff } from 'lucide-react';
 import { FormEventHandler, useState } from 'react';
 import InputError from '@/components/input-error';
+import AppLogoIcon from '@/components/app-logo-icon';
 
 interface LoginForm {
     username: string;
@@ -42,12 +43,9 @@ export default function Login({ status }: LoginProps) {
             >
                 {/* Hero branding strip */}
                 <div className="mb-8 text-center">
-                    {/* DAMRI Yellow bus badge */}
-                    <div
-                        className="mx-auto mb-4 flex h-16 w-16 items-center justify-center rounded-2xl"
-                        style={{ backgroundColor: '#FFC627' }}
-                    >
-                        <Bus size={32} color="#003B70" strokeWidth={2.5} />
+                    {/* Dishub Logo badge */}
+                    <div className="mx-auto mb-4 flex h-16 w-16 items-center justify-center rounded-2xl border border-slate-300 p-1.5 bg-white shadow-sm overflow-hidden">
+                        <AppLogoIcon className="h-full w-full object-contain" />
                     </div>
                     <h1
                         className="text-4xl font-extrabold tracking-tight"
